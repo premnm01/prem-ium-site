@@ -30,7 +30,7 @@ const { title, description = '' } = Astro.props;
         var fromUrl = params.get('theme');
         var theme = THEMES.includes(fromUrl)
           ? fromUrl
-          : (localStorage.getItem('pi-theme') || 'moss');
+          : (localStorage.getItem('pi-theme') || 'noir');
         document.documentElement.dataset.theme = theme;
       })();
     </script>

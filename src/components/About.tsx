@@ -26,11 +26,11 @@ export default function About({
   const tilt = useTilt(24);
 
   return (
-    <section id="about" ref={sectionRef} className="mx-auto max-w-6xl px-6 py-24">
-      <div className="grid items-center gap-12 md:grid-cols-2">
+    <section id="about" ref={sectionRef} className="relative px-6 py-24" style={{ background: 'rgb(var(--bg-rgb) / 0.85)' }}>
+      <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2">
         <div>
           {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
-          <AnimatedHeadline as="h2" text={headline} emphasize={emphasize} className="mb-6 text-3xl md:text-4xl" />
+          <AnimatedHeadline as="h2" text={headline} emphasize={emphasize} className="mb-6 text-3xl text-ink md:text-4xl" />
           {paragraphs.map((p, i) => (
             <motion.p
               key={i}

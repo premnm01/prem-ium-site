@@ -17,14 +17,18 @@ import { charity } from '../data/charity';
     <ul class="hidden gap-6 text-sm text-white/80 md:flex">
       <li><a href="#about" class="hover:text-accent">About</a></li>
       <li><a href="#work" class="hover:text-accent">Work</a></li>
+      <li><a href="/portfolio" class="hover:text-accent">All sites</a></li>
       <li><a href="#charity" class="hover:text-accent">Charity</a></li>
       <li><a href="#services" class="hover:text-accent">Services</a></li>
       <li><a href="#contact" class="hover:text-accent">Contact</a></li>
     </ul>
-    <a href="#contact" class="rounded-btn bg-accent px-4 py-2 text-sm font-medium text-white shadow-soft">Let's talk</a>
+    <div class="flex items-center gap-3">
+      <a href="https://prem-ium.online/portal" class="hidden text-sm text-white/80 hover:text-accent sm:inline">Portal ↗</a>
+      <a href="#contact" class="rounded-btn bg-accent px-4 py-2 text-sm font-medium text-white shadow-soft">Let's talk</a>
+    </div>
   </nav>
 
-  <section id="top" class="relative overflow-hidden">
+  <section id="top" class="relative overflow-hidden" style="background:rgb(5 6 8 / 0.55)">
     <div class="mx-auto grid min-h-[90vh] max-w-7xl items-center gap-6 px-6 py-16 md:grid-cols-2 md:gap-8">
       <div class="relative z-10 text-left">
         <p class="eyebrow mb-4">{hero.eyebrow}</p>
@@ -55,13 +59,18 @@ import { charity } from '../data/charity';
     paragraphs={about.paragraphs}
   />
 
-  <section id="work" class="relative overflow-hidden px-6 py-20" style="background:rgba(5,6,8,0.35)">
+  <section id="work" class="relative overflow-hidden px-6 py-20" style="background:rgb(5 6 8 / 0.72)">
     <div class="mx-auto max-w-6xl">
       <ParallaxGallery client:visible shots={gallery} />
+      <div class="mt-12 text-center">
+        <a href="/portfolio" class="inline-flex items-center justify-center rounded-btn border border-white/20 px-6 py-3 font-medium text-white transition-colors hover:bg-white/5">
+          See every site we've built →
+        </a>
+      </div>
     </div>
   </section>
 
-  <section id="charity" class="relative overflow-hidden px-6 py-24" style="background:rgba(5,6,8,0.35)">
+  <section id="charity" class="relative overflow-hidden px-6 py-24" style="background:rgb(5 6 8 / 0.72)">
     <div class="mx-auto max-w-6xl">
       <p class="eyebrow mb-4">Built free · Given away</p>
       <AnimatedHeadline client:visible as="h2" text="Good websites shouldn't cost anything." emphasize={['cost', 'anything']} className="mb-4 text-3xl leading-tight text-white md:text-4xl" />
@@ -78,20 +87,29 @@ import { charity } from '../data/charity';
     </div>
   </section>
 
-  <section id="services" class="mx-auto max-w-6xl px-6 py-24">
-    <AnimatedHeadline client:visible as="h2" text="What I do." outline={['do']} className="mb-10 text-3xl md:text-4xl" />
-    <Services client:visible items={services} />
+  <section id="services" class="relative px-6 py-24" style="background:rgb(var(--bg-rgb) / 0.85)">
+    <div class="mx-auto max-w-6xl">
+      <AnimatedHeadline client:visible as="h2" text="What I do." outline={['do']} className="mb-10 text-3xl text-ink md:text-4xl" />
+      <Services client:visible items={services} />
+    </div>
   </section>
 
-  <section id="contact" class="relative mx-auto max-w-2xl px-6 py-24 text-center">
-    <AnimatedHeadline client:visible as="h2" text="Let's build something." emphasize={['something.']} outline={['build']} className="mb-4 text-3xl md:text-4xl" />
-    <p class="mb-8 text-ink">Have a business that needs a real website — or think one of the free ones above is yours? Reach out.</p>
-    <a href="mailto:hello@prem-ium.inc" class="inline-flex items-center justify-center rounded-btn bg-accent px-6 py-3 font-medium text-white shadow-soft transition-transform hover:-translate-y-0.5">
-      hello@prem-ium.inc
-    </a>
+  <section id="contact" class="relative px-6 py-24 text-center" style="background:rgb(var(--bg-rgb) / 0.85)">
+    <div class="mx-auto max-w-2xl">
+      <AnimatedHeadline client:visible as="h2" text="Let's build something." emphasize={['something.']} outline={['build']} className="mb-4 text-3xl text-ink md:text-4xl" />
+      <p class="mb-8 text-ink">Have a business that needs a real website — or think one of the free ones above is yours? Reach out.</p>
+      <a href="mailto:hello@prem-ium.inc" class="inline-flex items-center justify-center rounded-btn bg-accent px-6 py-3 font-medium text-white shadow-soft transition-transform hover:-translate-y-0.5">
+        hello@prem-ium.inc
+      </a>
+    </div>
   </section>
 
-  <footer class="border-t border-border/60 px-6 py-10 text-center text-sm text-ink2">
+  <footer class="relative border-t border-border/60 px-6 py-10 text-center text-sm text-ink2" style="background:rgb(var(--bg-rgb) / 0.9)">
+    <div class="mb-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+      <a href="/portfolio" class="hover:text-accent">All sites</a>
+      <a href="https://prem-ium.online/portal" class="hover:text-accent">Client portal ↗</a>
+      <a href="#contact" class="hover:text-accent">Contact</a>
+    </div>
     <p class="mb-2">© {new Date().getFullYear()} prem-ium.inc</p>
     <p class="opacity-70">{disclaimer}</p>
   </footer>

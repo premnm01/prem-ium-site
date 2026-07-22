@@ -1,0 +1,51 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AnimatedHeadline from '../components/AnimatedHeadline.tsx';
+import { allSites, LIVE_BASE } from '../data/allSites';
+---
+<Layout title="All work — prem-ium.inc" description="Every website built by prem-ium.inc for local businesses.">
+  <nav class="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-[#050608]/80 px-6 py-4 text-white backdrop-blur">
+    <a href="/" class="display text-lg font-semibold">prem-ium<span class="text-accent">.inc</span></a>
+    <ul class="hidden gap-6 text-sm text-white/80 md:flex">
+      <li><a href="/#about" class="hover:text-accent">About</a></li>
+      <li><a href="/#work" class="hover:text-accent">Work</a></li>
+      <li><a href="/portfolio" class="text-accent">All sites</a></li>
+      <li><a href="/#charity" class="hover:text-accent">Charity</a></li>
+      <li><a href="/#contact" class="hover:text-accent">Contact</a></li>
+    </ul>
+    <a href="/#contact" class="rounded-btn bg-accent px-4 py-2 text-sm font-medium text-white shadow-soft">Let's talk</a>
+  </nav>
+
+  <section class="relative px-6 py-20" style="background:rgb(5 6 8 / 0.72)">
+    <div class="mx-auto max-w-6xl">
+      <a href="/" class="mb-6 inline-block text-sm text-white/50 hover:text-accent">← Back home</a>
+      <AnimatedHeadline client:load as="h1" text="Every site we've ever built." emphasize={['built.']} className="mb-3 text-4xl leading-tight text-white md:text-5xl" />
+      <p class="mb-12 max-w-xl text-white/60">{allSites.length} real websites for real local businesses — every one is live. Click any to open it.</p>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {allSites.map((s) => (
+          <a
+            href={`${LIVE_BASE}/${s.slug}`}
+            target="_blank"
+            rel="noopener"
+            class="group flex flex-col rounded-lg border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-accent/50 hover:bg-white/[0.06]"
+          >
+            <span class="eyebrow mb-3 inline-block w-fit rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px]">{s.category}</span>
+            <span class="text-lg font-semibold text-white">{s.business}</span>
+            <span class="mb-4 text-sm text-white/50">{s.city}</span>
+            <span class="mt-auto text-sm font-medium text-accent">View live site ↗</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <footer class="relative border-t border-white/10 px-6 py-10 text-center text-sm text-white/50" style="background:rgb(5 6 8 / 0.9)">
+    <div class="mb-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+      <a href="/" class="hover:text-accent">Home</a>
+      <a href="https://prem-ium.online/portal" class="hover:text-accent">Client portal ↗</a>
+      <a href="/#contact" class="hover:text-accent">Contact</a>
+    </div>
+    <p>© {new Date().getFullYear()} prem-ium.inc</p>
+  </footer>
+</Layout>

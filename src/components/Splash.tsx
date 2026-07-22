@@ -123,7 +123,7 @@ export default function Splash() {
       ref={rootRef}
       aria-hidden
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-5"
-      style={{ background: '#080612' }}
+      style={{ background: 'var(--bg)' }}
     >
       <div
         ref={gridRef}

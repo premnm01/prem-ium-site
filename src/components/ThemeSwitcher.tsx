@@ -17,10 +17,10 @@ const THEMES = [
  *  and syncs the choice to ?theme= + localStorage so a specific look is
  *  linkable/screenshottable. Rendered as color swatches to stay compact. */
 export default function ThemeSwitcher() {
-  const [active, setActive] = useState('moss');
+  const [active, setActive] = useState('noir');
 
   useEffect(() => {
-    setActive(document.documentElement.dataset.theme || 'moss');
+    setActive(document.documentElement.dataset.theme || 'noir');
   }, []);
 
   function pick(id: string) {
