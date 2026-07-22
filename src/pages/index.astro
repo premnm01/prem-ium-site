@@ -3,13 +3,14 @@ import Layout from '../layouts/Layout.astro';
 import HeroCanvas from '../components/HeroCanvas.tsx';
 import About from '../components/About.tsx';
 import SiteCard from '../components/SiteCard.tsx';
+import ParallaxGallery from '../components/ParallaxGallery.tsx';
 import Services from '../components/Services.tsx';
 import ThemeSwitcher from '../components/ThemeSwitcher.tsx';
 import SmoothScroll from '../components/SmoothScroll.tsx';
 import AnimatedHeadline from '../components/AnimatedHeadline.tsx';
 import { hero, about, services, disclaimer } from '../data/site';
-import { work } from '../data/work';
 import { charity } from '../data/charity';
+import { gallery } from '../data/gallery';
 ---
 <Layout title="prem-ium.inc — Websites for local businesses" description={hero.sub}>
   <nav class="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-[#050608]/80 px-6 py-4 text-white backdrop-blur">
@@ -56,13 +57,13 @@ import { charity } from '../data/charity';
     paragraphs={about.paragraphs}
   />
 
-  <section id="work" class="mx-auto max-w-6xl px-6 py-24">
-    <AnimatedHeadline client:visible as="h2" text="Real sites for real businesses." emphasize={['businesses.']} className="mb-3 text-3xl md:text-4xl" />
-    <p class="mb-10 max-w-xl text-ink2">A few of the local businesses I've designed, built, and shipped for.</p>
-    <div class="grid gap-6 md:grid-cols-3">
-      {work.map((s, i) => (
-        <SiteCard client:visible business={s.business} city={s.city} category={s.category} renderUrl={s.renderUrl} i={i} variant="work" />
-      ))}
+  <section id="work" class="relative overflow-hidden px-6 py-28" style="background:#050608">
+    <div class="mx-auto max-w-6xl">
+      <div class="mb-14 text-white">
+        <AnimatedHeadline client:visible as="h2" text="Real sites for real businesses." emphasize={['businesses.']} className="mb-3 text-3xl md:text-5xl" />
+        <p class="max-w-xl text-white/50">Every one of these is live. Scroll through — each window opens the real site.</p>
+      </div>
+      <ParallaxGallery client:visible shots={gallery} />
     </div>
   </section>
 
