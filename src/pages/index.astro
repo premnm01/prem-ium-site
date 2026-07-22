@@ -2,14 +2,13 @@
 import Layout from '../layouts/Layout.astro';
 import HeroCanvas from '../components/HeroCanvas.tsx';
 import About from '../components/About.tsx';
-import SiteCard from '../components/SiteCard.tsx';
 import ParallaxGallery from '../components/ParallaxGallery.tsx';
+import WorldGlobe from '../components/WorldGlobe.tsx';
 import Services from '../components/Services.tsx';
 import ThemeSwitcher from '../components/ThemeSwitcher.tsx';
 import SmoothScroll from '../components/SmoothScroll.tsx';
 import AnimatedHeadline from '../components/AnimatedHeadline.tsx';
 import { hero, about, services, disclaimer } from '../data/site';
-import { charity } from '../data/charity';
 import { gallery } from '../data/gallery';
 ---
 <Layout title="prem-ium.inc — Websites for local businesses" description={hero.sub}>
@@ -63,20 +62,25 @@ import { gallery } from '../data/gallery';
     </div>
   </section>
 
-  <section id="charity" class="border-y border-border/60 bg-bg2 px-6 py-24">
-    <div class="mx-auto max-w-6xl">
-      <AnimatedHeadline client:visible as="h2" text="Some of these are free." emphasize={['free.']} className="mb-3 text-3xl md:text-4xl" />
-      <p class="mb-10 max-w-xl text-ink2">
-        Every prospecting run builds more sites than we ever reach out to sell. Instead of letting them sit unused,
-        a few go here — free, permanently, to the business they were built for. If one of these is yours,
-        <a href="#contact" class="text-accent underline">get in touch</a> and it's yours.
+  <section id="charity" class="relative overflow-hidden px-6 py-24 text-center" style="background:#050608">
+    <div class="mx-auto max-w-3xl">
+      <p class="eyebrow mb-4">Built free · Given away</p>
+      <AnimatedHeadline client:visible as="h2" text="Every site we build, we give away free." emphasize={['free.']} className="mb-5 text-3xl leading-tight text-white md:text-5xl" />
+      <p class="mx-auto mb-2 max-w-xl text-white/60">
+        prem-ium.inc isn't just a portfolio — it's charity. Every website you see here was designed, built, and
+        deployed at no cost, then handed to a local business that could never afford one. No fees, no catch.
       </p>
-      <div class="grid gap-6 md:grid-cols-3">
-        {charity.map((s, i) => (
-          <SiteCard client:visible business={s.business} city={s.city} category={s.category} renderUrl={s.renderUrl} whyFree={s.whyFree} i={i} variant="charity" />
-        ))}
-      </div>
+      <p class="mx-auto max-w-xl text-white/40 text-sm">
+        Every screenshot on the globe below is a real, free site. If one is yours,
+        <a href="#contact" class="text-accent underline">it's yours to keep</a>.
+      </p>
     </div>
+    <div class="mx-auto mt-4 max-w-5xl">
+      <WorldGlobe client:visible />
+    </div>
+    <a href="#contact" class="inline-flex items-center justify-center rounded-btn bg-accent px-6 py-3 font-medium text-white shadow-soft transition-transform hover:-translate-y-0.5">
+      Claim a free website →
+    </a>
   </section>
 
   <section id="services" class="mx-auto max-w-6xl px-6 py-24">
