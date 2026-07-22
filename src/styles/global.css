@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens ────────────────────────────────────────────────────────
+   :root holds the default theme ("ember"). [data-theme="moss"|"kinetic"]
+   blocks below override the same variable names for the live palette
+   preview (see ThemeSwitcher.tsx + the inline script in Layout.astro). None
+   of the three use purple/blue — warm terracotta, moss/gold, and dark
+   coral/amber respectively. */
+:root,
+[data-theme='ember'] {
+  --bg: #faf7f2; --bg2: #ffffff; --ink: #16130f; --ink2: #5b5750; --card: #ffffff;
+  --border: #e7e0d4;
+  --accent: #b23c2e; --accent-d: #8a2c21; --pop: #e08a3c; --ok: #2f855a;
+  --font-d: 'Fraunces', Georgia, serif;
+  --font-b: 'Inter', system-ui, sans-serif;
+  --radius: 18px; --radius-lg: 26px; --btn-radius: 99px;
+  --shadow-1: 0 10px 28px rgba(0,0,0,.09);
+  --shadow-2: 0 12px 32px rgba(0,0,0,.10);
+  --display-weight: 400; --display-ls: -.5px; --eyebrow-ls: 2.5px;
+  --display-transform: none;
+}
+
+[data-theme='moss'] {
+  --bg: #0d120f; --bg2: #141a16; --ink: #f3f1ea; --ink2: #a8ad9f; --card: #141a16;
+  --border: #263129;
+  --accent: #3f6b4a; --accent-d: #2c4d34; --pop: #d4a94a; --ok: #4a9463;
+  --font-d: 'Playfair Display', Georgia, serif;
+  --font-b: 'Inter', system-ui, sans-serif;
+  --radius: 14px; --radius-lg: 22px; --btn-radius: 99px;
+  --shadow-1: 0 8px 30px rgba(0,0,0,.35);
+  --shadow-2: 0 14px 40px rgba(0,0,0,.45);
+  --display-weight: 500; --display-ls: -.3px; --eyebrow-ls: 3px;
+  --display-transform: none;
+}
+
+[data-theme='kinetic'] {
+  --bg: #14100f; --bg2: #1b1614; --ink: #f5efe6; --ink2: #b3a89c; --card: #1b1614;
+  --border: #2c2521;
+  --accent: #e0523f; --accent-d: #b23c2e; --pop: #f2b134; --ok: #4a9463;
+  --font-d: 'Space Grotesk', sans-serif;
+  --font-b: 'Inter', system-ui, sans-serif;
+  --radius: 6px; --radius-lg: 12px; --btn-radius: 6px;
+  --shadow-1: 0 12px 40px rgba(0,0,0,.35);
+  --shadow-2: 0 24px 60px rgba(0,0,0,.5);
+  --display-weight: 700; --display-ls: -1.5px; --eyebrow-ls: 3.5px;
+  --display-transform: uppercase;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-b); line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .35s ease, color .35s ease;
+}
+h1, h2, h3, .display {
+  font-family: var(--font-d);
+  letter-spacing: var(--display-ls);
+  font-weight: var(--display-weight);
+  text-transform: var(--display-transform);
+}
+.eyebrow {
+  text-transform: uppercase; letter-spacing: var(--eyebrow-ls);
+  font-size: .8rem; color: var(--accent); font-weight: 600;
+}
+
+/* Gradient-knockout text (accent → pop), for 1-2 emphasis words per headline */
+.fx-textgrad {
+  background: linear-gradient(90deg, var(--accent), var(--pop));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* Marquee */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.animate-marquee { animation: marquee 28s linear infinite; }
+.marquee-mask { -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+                mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+
+/* Perspective wrappers for scroll-linked 3D depth (Hero background layer) */
+.fx-perspective { perspective: 1000px; }
+.fx-depth-layer { transform-style: preserve-3d; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
+  html { scroll-behavior: auto; }
+}

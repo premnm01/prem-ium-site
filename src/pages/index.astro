@@ -1,0 +1,93 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.tsx';
+import About from '../components/About.tsx';
+import SiteCard from '../components/SiteCard.tsx';
+import Services from '../components/Services.tsx';
+import ThemeSwitcher from '../components/ThemeSwitcher.tsx';
+import AnimatedHeadline from '../components/AnimatedHeadline.tsx';
+import { hero, about, services, disclaimer } from '../data/site';
+import { work } from '../data/work';
+import { charity } from '../data/charity';
+---
+<Layout title="prem-ium.inc — Websites for local businesses" description={hero.sub}>
+  <nav class="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-bg/80 px-6 py-4 backdrop-blur">
+    <a href="#top" class="display text-lg font-semibold">prem-ium<span class="text-accent">.inc</span></a>
+    <ul class="hidden gap-6 text-sm md:flex">
+      <li><a href="#about" class="hover:text-accent">About</a></li>
+      <li><a href="#work" class="hover:text-accent">Work</a></li>
+      <li><a href="#charity" class="hover:text-accent">Charity</a></li>
+      <li><a href="#services" class="hover:text-accent">Services</a></li>
+      <li><a href="#contact" class="hover:text-accent">Contact</a></li>
+    </ul>
+    <a href="#contact" class="rounded-btn bg-accent px-4 py-2 text-sm font-medium text-white shadow-soft">Let's talk</a>
+  </nav>
+
+  <div id="top">
+    <Hero
+      client:load
+      eyebrow={hero.eyebrow}
+      headline={hero.headline}
+      emphasize={hero.emphasize}
+      sub={hero.sub}
+      ctaLabel={hero.ctaLabel}
+      ctaHref={hero.ctaHref}
+      ctaLabel2={hero.ctaLabel2}
+      ctaHref2={hero.ctaHref2}
+    />
+  </div>
+
+  <About
+    client:load
+    eyebrow={about.eyebrow}
+    headline={about.headline}
+    emphasize={about.emphasize}
+    paragraphs={about.paragraphs}
+  />
+
+  <section id="work" class="mx-auto max-w-6xl px-6 py-24">
+    <AnimatedHeadline client:visible as="h2" text="Real sites for real businesses." emphasize={['businesses.']} className="mb-3 text-3xl md:text-4xl" />
+    <p class="mb-10 max-w-xl text-ink2">A few of the local businesses I've designed, built, and shipped for.</p>
+    <div class="grid gap-6 md:grid-cols-3">
+      {work.map((s, i) => (
+        <SiteCard client:visible business={s.business} city={s.city} category={s.category} renderUrl={s.renderUrl} i={i} variant="work" />
+      ))}
+    </div>
+  </section>
+
+  <section id="charity" class="border-y border-border/60 bg-bg2 px-6 py-24">
+    <div class="mx-auto max-w-6xl">
+      <AnimatedHeadline client:visible as="h2" text="Some of these are free." emphasize={['free.']} className="mb-3 text-3xl md:text-4xl" />
+      <p class="mb-10 max-w-xl text-ink2">
+        Every prospecting run builds more sites than we ever reach out to sell. Instead of letting them sit unused,
+        a few go here — free, permanently, to the business they were built for. If one of these is yours,
+        <a href="#contact" class="text-accent underline">get in touch</a> and it's yours.
+      </p>
+      <div class="grid gap-6 md:grid-cols-3">
+        {charity.map((s, i) => (
+          <SiteCard client:visible business={s.business} city={s.city} category={s.category} renderUrl={s.renderUrl} whyFree={s.whyFree} i={i} variant="charity" />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="mx-auto max-w-6xl px-6 py-24">
+    <AnimatedHeadline client:visible as="h2" text="What I do." className="mb-10 text-3xl md:text-4xl" />
+    <Services client:visible items={services} />
+  </section>
+
+  <section id="contact" class="mx-auto max-w-2xl px-6 py-24 text-center">
+    <AnimatedHeadline client:visible as="h2" text="Let's build something." emphasize={['something.']} className="mb-4 text-3xl md:text-4xl" />
+    <p class="mb-8 text-ink2">Have a business that needs a real website — or think one of the free ones above is yours? Reach out.</p>
+    <a href="mailto:hello@prem-ium.inc" class="inline-flex items-center justify-center rounded-btn bg-accent px-6 py-3 font-medium text-white shadow-soft transition-transform hover:-translate-y-0.5">
+      hello@prem-ium.inc
+    </a>
+  </section>
+
+  <footer class="border-t border-border/60 px-6 py-10 text-center text-sm text-ink2">
+    <p class="mb-2">© {new Date().getFullYear()} prem-ium.inc</p>
+    <p class="opacity-70">{disclaimer}</p>
+  </footer>
+
+  <ThemeSwitcher client:load />
+</Layout>
