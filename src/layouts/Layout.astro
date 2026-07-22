@@ -35,6 +35,23 @@ const { title, description = '' } = Astro.props;
         // Always start at the top on reload/navigation — don't restore the
         // previous scroll position (which could land mid-page in About).
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+        // Splash decision (runs on every page). Play the intro only on a
+        // genuine reload OR the first page of the session — NOT on internal
+        // navigation like portfolio → home, which is a full page load in an
+        // MPA and would otherwise replay the intro. Read the "visited" flag
+        // BEFORE setting it so the first page of the session still counts.
+        try {
+          var nav = performance.getEntriesByType('navigation')[0] || {};
+          var navType = nav.type || 'navigate';
+          var visited = sessionStorage.getItem('pi-visited');
+          sessionStorage.setItem('pi-visited', '1');
+          var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          var play = location.pathname === '/' && !reduce &&
+                     (navType === 'reload' || !visited);
+          window.__piPlaySplash = play;
+          if (play) document.documentElement.classList.add('pi-splash');
+        } catch (e) { window.__piPlaySplash = location.pathname === '/'; }
       })();
     </script>
   </head>

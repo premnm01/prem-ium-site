@@ -41,10 +41,9 @@ export default function Splash() {
     // 3s intro), and skipped under reduced-motion. NOT session-gated, so it
     // replays on every home load / reload.
     const preSplash = () => document.getElementById('pre-splash')?.remove();
-    if (
-      window.location.pathname !== '/' ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
+    // The head script already decided (reload / first-visit only, home only,
+    // not internal navigation). Respect its verdict.
+    if (!(window as any).__piPlaySplash) {
       preSplash();
       setGone(true);
       return;
