@@ -27,7 +27,7 @@ const HEART = [
 ];
 
 /** The original site's pixel-heart splash: bricks build from the centre, then
- *  shatter outward and the overlay fades. Runs once per session (sessionStorage)
+ *  shatter outward and the overlay fades. Plays on every home-page load
  *  and is skipped under prefers-reduced-motion. Bricks/label use the active
  *  theme's accent→pop gradient. Faithful port of the original splash.js. */
 export default function Splash() {
@@ -37,8 +37,11 @@ export default function Splash() {
   const labelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Only on the home page (so the /portfolio directory isn't gated behind a
+    // 3s intro), and skipped under reduced-motion. NOT session-gated, so it
+    // replays on every home load / reload.
     if (
-      sessionStorage.getItem('splash_done') ||
+      window.location.pathname !== '/' ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
       setGone(true);
@@ -109,7 +112,7 @@ export default function Splash() {
         });
         gsap.to(splash, {
           opacity: 0, duration: 0.4, delay: 1.3,
-          onComplete: () => { sessionStorage.setItem('splash_done', '1'); setGone(true); },
+          onComplete: () => { setGone(true); },
         });
       }, '+=1.1');
 
