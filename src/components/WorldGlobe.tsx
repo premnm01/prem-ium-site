@@ -12,16 +12,20 @@ const SLUGS = [
   'm3kp7x', 'r1q447', 'h760o7', 'vk1b2p', 'uee4d4', 'lzg0s3',
 ];
 
+// More tile slots than we have screenshots, so the sphere is fully wrapped —
+// textures repeat (offset each lap so neighbours aren't identical).
+const TILE_COUNT = 84;
+const RADIUS = 2.35;
+
 function Tiles() {
   const group = useRef<THREE.Group>(null);
   const textures = useTexture(SLUGS.map((s) => `/globe/${s}.jpg`));
 
   const nodes = useMemo(() => {
-    const N = SLUGS.length;
-    const r = 2.35;
+    const N = TILE_COUNT;
     const golden = Math.PI * (1 + Math.sqrt(5));
     const fwd = new THREE.Vector3(0, 0, 1);
-    return SLUGS.map((_, i) => {
+    return Array.from({ length: N }, (_, i) => {
       // Fibonacci sphere — even point spread, no clustering at the poles.
       const phi = Math.acos(1 - (2 * (i + 0.5)) / N);
       const theta = golden * i;
@@ -30,13 +34,14 @@ function Tiles() {
         Math.cos(phi),
         Math.sin(phi) * Math.sin(theta),
       );
-      const tex = textures[i];
+      // spread repeats so the same shot doesn't sit next to itself
+      const tex = textures[(i * 7 + Math.floor(i / textures.length)) % textures.length];
       if (tex) {
         tex.colorSpace = THREE.SRGBColorSpace; // screenshots are sRGB
         tex.anisotropy = 4;
       }
       return {
-        pos: dir.clone().multiplyScalar(r),
+        pos: dir.clone().multiplyScalar(RADIUS),
         // orient the plane's +Z (its front) along `dir` so it faces outward
         quat: new THREE.Quaternion().setFromUnitVectors(fwd, dir),
         tex,
@@ -46,21 +51,30 @@ function Tiles() {
 
   useFrame((state, delta) => {
     if (!group.current) return;
-    group.current.rotation.y += delta * 0.14; // steady auto-spin
+    group.current.rotation.y += delta * 0.13; // steady auto-spin
     // gentle tilt toward the pointer for a hand-on-the-globe feel
     group.current.rotation.x = THREE.MathUtils.lerp(
       group.current.rotation.x,
-      -state.pointer.y * 0.35 + 0.15,
+      -state.pointer.y * 0.3 + 0.12,
       0.04,
     );
   });
 
   return (
     <group ref={group}>
+      {/* Opaque backing sphere just under the tiles — any gap between tiles
+          reads as the dark globe surface instead of showing straight through
+          to the tiles on the far side. */}
+      <mesh>
+        <sphereGeometry args={[RADIUS - 0.14, 48, 48]} />
+        <meshBasicMaterial color="#0a0d0c" toneMapped={false} />
+      </mesh>
       {nodes.map((n, i) => (
         <mesh key={i} position={n.pos} quaternion={n.quat}>
-          <planeGeometry args={[0.92, 0.61]} />
-          <meshBasicMaterial map={n.tex} side={THREE.DoubleSide} toneMapped={false} transparent />
+          <planeGeometry args={[0.86, 0.57]} />
+          {/* FrontSide: far-hemisphere tiles face away and cull, leaving the
+              backing sphere — cheaper and reads as a solid globe. */}
+          <meshBasicMaterial map={n.tex} side={THREE.FrontSide} toneMapped={false} />
         </mesh>
       ))}
     </group>

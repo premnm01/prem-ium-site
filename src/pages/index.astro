@@ -24,7 +24,7 @@ import { gallery } from '../data/gallery';
     <a href="#contact" class="rounded-btn bg-accent px-4 py-2 text-sm font-medium text-white shadow-soft">Let's talk</a>
   </nav>
 
-  <section id="top" class="relative overflow-hidden" style="background:#050608">
+  <section id="top" class="relative overflow-hidden" style="background:rgba(5,6,8,0.55)">
     <div class="mx-auto grid min-h-[90vh] max-w-7xl items-center gap-6 px-6 py-16 md:grid-cols-2 md:gap-8">
       <div class="relative z-10 order-2 text-left md:order-1">
         <p class="eyebrow mb-4">{hero.eyebrow}</p>
@@ -56,14 +56,14 @@ import { gallery } from '../data/gallery';
     paragraphs={about.paragraphs}
   />
 
-  <section id="work" class="relative overflow-hidden px-6 py-20" style="background:#050608">
+  <section id="work" class="relative overflow-hidden px-6 py-20" style="background:rgba(5,6,8,0.5)">
     <div class="mx-auto max-w-6xl">
       <ParallaxGallery client:visible shots={gallery} />
     </div>
   </section>
 
-  <section id="charity" class="relative overflow-hidden px-6 py-24 text-center" style="background:#050608">
-    <div class="mx-auto max-w-3xl">
+  <section id="charity" class="relative flex flex-col items-center gap-8 overflow-hidden px-6 py-24 text-center" style="background:rgba(5,6,8,0.5)">
+    <div class="max-w-3xl">
       <p class="eyebrow mb-4">Built free · Given away</p>
       <AnimatedHeadline client:visible as="h2" text="Every site we build, we give away free." emphasize={['free.']} className="mb-5 text-3xl leading-tight text-white md:text-5xl" />
       <p class="mx-auto mb-2 max-w-xl text-white/60">
@@ -71,11 +71,11 @@ import { gallery } from '../data/gallery';
         deployed at no cost, then handed to a local business that could never afford one. No fees, no catch.
       </p>
       <p class="mx-auto max-w-xl text-white/40 text-sm">
-        Every screenshot on the globe below is a real, free site. If one is yours,
+        Every screenshot on the globe is a real, free site. If one is yours,
         <a href="#contact" class="text-accent underline">it's yours to keep</a>.
       </p>
     </div>
-    <div class="mx-auto mt-4 max-w-5xl">
+    <div class="w-full max-w-5xl">
       <WorldGlobe client:visible />
     </div>
     <a href="#contact" class="inline-flex items-center justify-center rounded-btn bg-accent px-6 py-3 font-medium text-white shadow-soft transition-transform hover:-translate-y-0.5">

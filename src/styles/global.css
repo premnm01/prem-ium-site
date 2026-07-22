@@ -136,7 +136,22 @@ h1, h2, h3, .display {
 .fx-perspective { perspective: 1200px; }
 .fx-depth-layer { transform-style: preserve-3d; will-change: transform; }
 
+/* Ambient "organic matter" — soft glowing blobs that drift behind the whole
+   page (see AmbientBlobs.tsx). Pure radial-gradient softness, NO blur filter
+   (animated blur re-rasterises every frame and was a prior lag source). */
+@keyframes ambientFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(4%, -6%) scale(1.06); }
+  66%      { transform: translate(-5%, 4%) scale(0.96); }
+}
+.ambient-blob {
+  border-radius: 9999px;
+  animation: ambientFloat 24s ease-in-out infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee { animation: none; }
+  .ambient-blob { animation: none; }
   html { scroll-behavior: auto; }
 }

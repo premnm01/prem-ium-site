@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import AmbientBlobs from '../components/AmbientBlobs.tsx';
 interface Props { title: string; description?: string; }
 const { title, description = '' } = Astro.props;
 ---
@@ -33,6 +34,7 @@ const { title, description = '' } = Astro.props;
     </script>
   </head>
   <body>
+    <AmbientBlobs client:load />
     <slot />
   </body>
 </html>
