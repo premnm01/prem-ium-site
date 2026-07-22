@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 
-// 21×21 pixel heart (1 = lit brick) — ported from the original prem-ium.inc.
+// 21×21 pixel heart (1 = lit brick) — ported from the original prem-ium.online.
 const HEART = [
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -142,7 +142,7 @@ export default function Splash() {
         className="fx-textgrad"
         style={{ fontFamily: 'var(--font-d)', fontWeight: 800, letterSpacing: '-.5px', fontSize: 'clamp(1.4rem,3vw,2rem)' }}
       >
-        prem-ium.inc
+        prem-ium.online
       </div>
     </div>
   );

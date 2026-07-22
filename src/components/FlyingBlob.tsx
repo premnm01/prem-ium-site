@@ -31,7 +31,7 @@ function useThemeColors() {
   return c;
 }
 
-const N = 14;
+const N = 18;
 const ORIGIN = new THREE.Vector3(0, 0, 0);
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);

@@ -30,8 +30,11 @@ const { title, description = '' } = Astro.props;
         var fromUrl = params.get('theme');
         var theme = THEMES.includes(fromUrl)
           ? fromUrl
-          : (localStorage.getItem('pi-theme') || 'noir');
+          : (localStorage.getItem('pi-theme') || 'moss');
         document.documentElement.dataset.theme = theme;
+        // Always start at the top on reload/navigation — don't restore the
+        // previous scroll position (which could land mid-page in About).
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
       })();
     </script>
   </head>

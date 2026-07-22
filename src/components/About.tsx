@@ -56,18 +56,14 @@ export default function About({
               rotateY: tilt.rotateY,
               transformPerspective: 700,
             }}
-            className="fx-depth-layer flex aspect-square items-center justify-center rounded-lg bg-card p-10 shadow-lift ring-1 ring-ink/10"
+            className="fx-depth-layer aspect-square overflow-hidden rounded-lg bg-card p-2 shadow-lift ring-1 ring-ink/10"
           >
-            <div
-              className="display flex h-full w-full items-center justify-center rounded text-6xl font-semibold"
-              style={{
-                background: 'linear-gradient(135deg, var(--accent), var(--pop))',
-                color: '#fff',
-                boxShadow: '0 30px 60px -20px rgb(var(--accent-rgb) / 0.5)',
-              }}
-            >
-              P
-            </div>
+            <img
+              src="/flower.jpg"
+              alt="Rose"
+              className="h-full w-full rounded object-cover"
+              style={{ boxShadow: '0 30px 60px -20px rgb(var(--accent-rgb) / 0.5)' }}
+            />
           </motion.div>
         </motion.div>
       </div>

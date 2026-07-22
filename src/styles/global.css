@@ -94,7 +94,7 @@
   --display-transform: none;
 }
 
-/* classic — the original prem-ium.inc look: purple→pink on near-black,
+/* classic — the original prem-ium.online look: purple→pink on near-black,
    Syne display + Space Grotesk body. Ported so it's selectable. */
 [data-theme='classic'] {
   --bg-rgb: 8 6 18; --bg2-rgb: 17 13 36; --ink-rgb: 240 234 255; --ink2-rgb: 124 111 160;

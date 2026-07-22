@@ -15,7 +15,7 @@ import type { GalleryShot } from '../data/gallery';
  *  a stable INNER element does the lift + scale. */
 function SiteWindow({ shot, y }: { shot: GalleryShot; y: MotionValue<number> }) {
   const [hovered, setHovered] = useState(false);
-  const host = `${shot.business.toLowerCase().replace(/[^a-z0-9]+/g, '')}.prem-ium.inc`;
+  const host = `${shot.business.toLowerCase().replace(/[^a-z0-9]+/g, '')}.prem-ium.online`;
 
   return (
     <motion.a
