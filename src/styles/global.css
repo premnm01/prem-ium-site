@@ -3,16 +3,20 @@
 @tailwind utilities;
 
 /* ── Design tokens ────────────────────────────────────────────────────────
-   :root holds the default theme ("ember"). [data-theme="moss"|"kinetic"]
-   blocks below override the same variable names for the live palette
-   preview (see ThemeSwitcher.tsx + the inline script in Layout.astro). None
-   of the three use purple/blue — warm terracotta, moss/gold, and dark
-   coral/amber respectively. */
+   Every color is stored as a space-separated RGB triple (e.g. --ink-rgb:
+   22 19 15) so Tailwind's opacity modifiers (bg-ink/5, ring-accent/30, …)
+   actually work — a plain hex CSS var can't be alpha-blended by Tailwind's
+   <alpha-value> mechanism, which was silently dropping those utilities and
+   falling back to Tailwind's default blue ring color. This is the same
+   convention shadcn/ui itself uses for exactly this reason.
+   [data-theme="moss"|"kinetic"] override the same variable names for the
+   live palette preview (ThemeSwitcher.tsx + the inline script in
+   Layout.astro). None of the three use purple/blue. */
 :root,
 [data-theme='ember'] {
-  --bg: #faf7f2; --bg2: #ffffff; --ink: #16130f; --ink2: #5b5750; --card: #ffffff;
-  --border: #e7e0d4;
-  --accent: #b23c2e; --accent-d: #8a2c21; --pop: #e08a3c; --ok: #2f855a;
+  --bg-rgb: 250 247 242; --bg2-rgb: 255 255 255; --ink-rgb: 22 19 15; --ink2-rgb: 91 87 80;
+  --card-rgb: 255 255 255; --border-rgb: 231 224 212;
+  --accent-rgb: 178 60 46; --accent-d-rgb: 138 44 33; --pop-rgb: 224 138 60; --ok-rgb: 47 133 90;
   --font-d: 'Fraunces', Georgia, serif;
   --font-b: 'Inter', system-ui, sans-serif;
   --radius: 18px; --radius-lg: 26px; --btn-radius: 99px;
@@ -23,9 +27,9 @@
 }
 
 [data-theme='moss'] {
-  --bg: #0d120f; --bg2: #141a16; --ink: #f3f1ea; --ink2: #a8ad9f; --card: #141a16;
-  --border: #263129;
-  --accent: #3f6b4a; --accent-d: #2c4d34; --pop: #d4a94a; --ok: #4a9463;
+  --bg-rgb: 13 18 15; --bg2-rgb: 20 26 22; --ink-rgb: 243 241 234; --ink2-rgb: 168 173 159;
+  --card-rgb: 20 26 22; --border-rgb: 38 49 41;
+  --accent-rgb: 63 107 74; --accent-d-rgb: 44 77 52; --pop-rgb: 212 169 74; --ok-rgb: 74 148 99;
   --font-d: 'Playfair Display', Georgia, serif;
   --font-b: 'Inter', system-ui, sans-serif;
   --radius: 14px; --radius-lg: 22px; --btn-radius: 99px;
@@ -36,9 +40,9 @@
 }
 
 [data-theme='kinetic'] {
-  --bg: #14100f; --bg2: #1b1614; --ink: #f5efe6; --ink2: #b3a89c; --card: #1b1614;
-  --border: #2c2521;
-  --accent: #e0523f; --accent-d: #b23c2e; --pop: #f2b134; --ok: #4a9463;
+  --bg-rgb: 20 16 15; --bg2-rgb: 27 22 20; --ink-rgb: 245 239 230; --ink2-rgb: 179 168 156;
+  --card-rgb: 27 22 20; --border-rgb: 44 37 33;
+  --accent-rgb: 224 82 63; --accent-d-rgb: 178 60 46; --pop-rgb: 242 177 52; --ok-rgb: 74 148 99;
   --font-d: 'Space Grotesk', sans-serif;
   --font-b: 'Inter', system-ui, sans-serif;
   --radius: 6px; --radius-lg: 12px; --btn-radius: 6px;
@@ -48,12 +52,20 @@
   --display-transform: uppercase;
 }
 
+/* Solid convenience vars (used where opacity modifiers aren't needed, e.g. inline gradients) */
+:root {
+  --bg: rgb(var(--bg-rgb)); --bg2: rgb(var(--bg2-rgb)); --ink: rgb(var(--ink-rgb)); --ink2: rgb(var(--ink2-rgb));
+  --card: rgb(var(--card-rgb)); --border: rgb(var(--border-rgb));
+  --accent: rgb(var(--accent-rgb)); --accent-d: rgb(var(--accent-d-rgb)); --pop: rgb(var(--pop-rgb)); --ok: rgb(var(--ok-rgb));
+}
+
 html { scroll-behavior: smooth; }
 body {
   background: var(--bg); color: var(--ink);
   font-family: var(--font-b); line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   transition: background-color .35s ease, color .35s ease;
+  overflow-x: clip;
 }
 h1, h2, h3, .display {
   font-family: var(--font-d);
@@ -78,9 +90,9 @@ h1, h2, h3, .display {
 .marquee-mask { -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
                 mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
 
-/* Perspective wrappers for scroll-linked 3D depth (Hero background layer) */
-.fx-perspective { perspective: 1000px; }
-.fx-depth-layer { transform-style: preserve-3d; }
+/* Perspective wrappers for scroll-linked 3D depth */
+.fx-perspective { perspective: 1200px; }
+.fx-depth-layer { transform-style: preserve-3d; will-change: transform; }
 
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee { animation: none; }

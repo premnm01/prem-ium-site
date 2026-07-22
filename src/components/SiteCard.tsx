@@ -22,7 +22,7 @@ export default function SiteCard({
   variant?: 'work' | 'charity';
 }) {
   const reduceMotion = useReducedMotion();
-  const tilt = useTilt(6);
+  const tilt = useTilt(14);
 
   return (
     <motion.div
@@ -31,11 +31,12 @@ export default function SiteCard({
       onPointerLeave={tilt.onPointerLeave}
       initial={reduceMotion ? undefined : { opacity: 0, y: 20 }}
       whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+      whileHover={reduceMotion ? undefined : { scale: 1.04, z: 40 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5, delay: i * 0.06, ease: EASE }}
       style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 800 }}
       className={`fx-depth-layer flex flex-col rounded-lg bg-card p-6 shadow-soft ring-1 transition-shadow duration-200 hover:shadow-lift ${
-        variant === 'charity' ? 'ring-pop/30' : 'ring-ink/5'
+        variant === 'charity' ? 'ring-pop/30' : 'ring-ink/10'
       }`}
     >
       <Badge>{category}</Badge>

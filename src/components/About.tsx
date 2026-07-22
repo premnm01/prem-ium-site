@@ -21,8 +21,9 @@ export default function About({
     offset: ['start end', 'end start'],
   });
   // Portrait card moves at a different rate than the text column — 2-layer parallax.
-  const cardY = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [-40, 40]);
-  const tilt = useTilt(8);
+  const cardY = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [-100, 100]);
+  const cardRotate = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [-6, 6]);
+  const tilt = useTilt(16);
 
   return (
     <section id="about" ref={sectionRef} className="mx-auto max-w-6xl px-6 py-24">
@@ -44,23 +45,25 @@ export default function About({
           ))}
         </div>
 
-        <motion.div className="fx-perspective" style={{ y: cardY }}>
+        <motion.div className="fx-perspective" style={{ y: cardY, rotate: cardRotate }}>
           <motion.div
             ref={tilt.ref as any}
             onPointerMove={tilt.onPointerMove}
             onPointerLeave={tilt.onPointerLeave}
+            whileHover={reduceMotion ? undefined : { scale: 1.03 }}
             style={{
               rotateX: tilt.rotateX,
               rotateY: tilt.rotateY,
               transformPerspective: 800,
             }}
-            className="fx-depth-layer flex aspect-square items-center justify-center rounded-lg bg-card p-10 shadow-lift ring-1 ring-ink/5"
+            className="fx-depth-layer flex aspect-square items-center justify-center rounded-lg bg-card p-10 shadow-lift ring-1 ring-ink/10"
           >
             <div
               className="display flex h-full w-full items-center justify-center rounded text-6xl font-semibold"
               style={{
                 background: 'linear-gradient(135deg, var(--accent), var(--pop))',
                 color: '#fff',
+                boxShadow: '0 30px 60px -20px rgb(var(--accent-rgb) / 0.5)',
               }}
             >
               P
