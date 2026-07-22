@@ -9,5 +9,7 @@ export default defineConfig({
   output: 'static',
   integrations: [react(), tailwind({ applyBaseStyles: false })],
   build: { inlineStylesheets: 'auto' },
+  // Hide the floating Astro dev toolbar (the small bar at bottom-centre in dev).
+  devToolbar: { enabled: false },
   site: process.env.SITE_URL || 'https://example.com',
 });

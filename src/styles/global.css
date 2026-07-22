@@ -52,6 +52,48 @@
   --display-transform: uppercase;
 }
 
+/* sand — light warm neutral, burnt-sienna accent, soft geometric sans */
+[data-theme='sand'] {
+  --bg-rgb: 244 239 230; --bg2-rgb: 255 253 248; --ink-rgb: 36 31 26; --ink2-rgb: 107 97 87;
+  --card-rgb: 255 253 248; --border-rgb: 227 217 201;
+  --accent-rgb: 193 95 52; --accent-d-rgb: 154 74 40; --pop-rgb: 224 162 78; --ok-rgb: 47 133 90;
+  --font-d: 'Sora', sans-serif;
+  --font-b: 'Inter', system-ui, sans-serif;
+  --radius: 14px; --radius-lg: 20px; --btn-radius: 12px;
+  --shadow-1: 0 8px 26px rgba(0,0,0,.08);
+  --shadow-2: 0 12px 34px rgba(0,0,0,.10);
+  --display-weight: 600; --display-ls: -.6px; --eyebrow-ls: 2.5px;
+  --display-transform: none;
+}
+
+/* noir — near-black editorial monochrome, crimson accent, bold uppercase */
+[data-theme='noir'] {
+  --bg-rgb: 10 10 11; --bg2-rgb: 19 19 21; --ink-rgb: 245 245 244; --ink2-rgb: 155 155 152;
+  --card-rgb: 19 19 21; --border-rgb: 38 38 40;
+  --accent-rgb: 229 72 77; --accent-d-rgb: 193 53 57; --pop-rgb: 242 193 78; --ok-rgb: 74 148 99;
+  --font-d: 'Space Grotesk', sans-serif;
+  --font-b: 'Inter', system-ui, sans-serif;
+  --radius: 4px; --radius-lg: 10px; --btn-radius: 4px;
+  --shadow-1: 0 12px 40px rgba(0,0,0,.5);
+  --shadow-2: 0 24px 60px rgba(0,0,0,.65);
+  --display-weight: 700; --display-ls: -1px; --eyebrow-ls: 4px;
+  --display-transform: uppercase;
+}
+
+/* rose — light blush, berry-rose accent, refined serif display */
+[data-theme='rose'] {
+  --bg-rgb: 251 244 242; --bg2-rgb: 255 252 251; --ink-rgb: 42 26 30; --ink2-rgb: 111 90 95;
+  --card-rgb: 255 252 251; --border-rgb: 236 220 216;
+  --accent-rgb: 178 58 91; --accent-d-rgb: 143 44 72; --pop-rgb: 224 138 160; --ok-rgb: 47 133 90;
+  --font-d: 'Playfair Display', Georgia, serif;
+  --font-b: 'Inter', system-ui, sans-serif;
+  --radius: 16px; --radius-lg: 24px; --btn-radius: 99px;
+  --shadow-1: 0 8px 30px rgba(0,0,0,.07);
+  --shadow-2: 0 14px 40px rgba(0,0,0,.09);
+  --display-weight: 500; --display-ls: -.3px; --eyebrow-ls: 3px;
+  --display-transform: none;
+}
+
 /* Solid convenience vars (used where opacity modifiers aren't needed, e.g. inline gradients) */
 :root {
   --bg: rgb(var(--bg-rgb)); --bg2: rgb(var(--bg2-rgb)); --ink: rgb(var(--ink-rgb)); --ink2: rgb(var(--ink2-rgb));

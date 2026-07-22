@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react';
 
+// Each theme shows as a compact swatch (accent → pop gradient) so all six fit
+// in a small bar that never overflows / gets cut off. Colors mirror the
+// [data-theme] blocks in global.css.
 const THEMES = [
-  { id: 'ember', label: 'Ember' },
-  { id: 'moss', label: 'Moss' },
-  { id: 'kinetic', label: 'Kinetic' },
+  { id: 'ember', label: 'Ember', a: '#b23c2e', b: '#e08a3c' },
+  { id: 'moss', label: 'Moss', a: '#3f6b4a', b: '#d4a94a' },
+  { id: 'kinetic', label: 'Kinetic', a: '#e0523f', b: '#f2b134' },
+  { id: 'sand', label: 'Sand', a: '#c15f34', b: '#e0a24e' },
+  { id: 'noir', label: 'Noir', a: '#e5484d', b: '#f2c14e' },
+  { id: 'rose', label: 'Rose', a: '#b23a5b', b: '#e08aa0' },
 ] as const;
 
-/** Dev-only floating switcher: flips [data-theme] on <html> instantly (no
- *  reload) and syncs the choice to ?theme= + localStorage so a specific
- *  look is linkable/screenshottable. Meant to be removed before any future
- *  deploy — this is a local-comparison tool, not a shipped feature. */
+/** Floating theme switcher: flips [data-theme] on <html> instantly (no reload)
+ *  and syncs the choice to ?theme= + localStorage so a specific look is
+ *  linkable/screenshottable. Rendered as color swatches to stay compact. */
 export default function ThemeSwitcher() {
   const [active, setActive] = useState('ember');
 
@@ -26,19 +31,26 @@ export default function ThemeSwitcher() {
     history.replaceState(null, '', url);
   }
 
+  const activeLabel = THEMES.find((t) => t.id === active)?.label ?? '';
+
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex gap-1 rounded-btn border border-border bg-card p-1 shadow-lift">
-      {THEMES.map((t) => (
-        <button
-          key={t.id}
-          onClick={() => pick(t.id)}
-          className={`rounded-btn px-3 py-1.5 text-xs font-medium transition-colors ${
-            active === t.id ? 'bg-accent text-white' : 'text-ink2 hover:bg-ink/5'
-          }`}
-        >
-          {t.label}
-        </button>
-      ))}
+    <div className="fixed bottom-4 right-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-2 shadow-lift backdrop-blur">
+      <span className="hidden w-14 shrink-0 text-[11px] font-medium text-white/70 sm:block">{activeLabel}</span>
+      <div className="flex items-center gap-1.5">
+        {THEMES.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => pick(t.id)}
+            title={t.label}
+            aria-label={t.label}
+            aria-pressed={active === t.id}
+            className={`h-6 w-6 shrink-0 rounded-full transition-transform hover:scale-110 ${
+              active === t.id ? 'ring-2 ring-white ring-offset-2 ring-offset-black' : 'ring-1 ring-white/20'
+            }`}
+            style={{ background: `linear-gradient(135deg, ${t.a}, ${t.b})` }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
