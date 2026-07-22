@@ -9,7 +9,9 @@ import Lenis from 'lenis';
 export default function SmoothScroll() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+    // Snappier than the default: lower lerp = less inertia/delay, so scroll
+    // stays smooth without feeling laggy/floaty.
+    const lenis = new Lenis({ lerp: 0.12, smoothWheel: true, wheelMultiplier: 1.1 });
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);

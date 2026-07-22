@@ -55,9 +55,8 @@ export default function About({
               rotateX: tilt.rotateX,
               rotateY: tilt.rotateY,
               transformPerspective: 700,
-              boxShadow: tilt.shadow,
             }}
-            className="fx-depth-layer flex aspect-square items-center justify-center rounded-lg bg-card p-10 ring-1 ring-ink/10"
+            className="fx-depth-layer flex aspect-square items-center justify-center rounded-lg bg-card p-10 shadow-lift ring-1 ring-ink/10"
           >
             <div
               className="display flex h-full w-full items-center justify-center rounded text-6xl font-semibold"

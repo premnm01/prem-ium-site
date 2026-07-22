@@ -34,8 +34,8 @@ export default function SiteCard({
       whileHover={reduceMotion ? undefined : { scale: 1.05, z: 50 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5, delay: i * 0.06, ease: EASE }}
-      style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 700, boxShadow: tilt.shadow }}
-      className={`fx-depth-layer flex flex-col rounded-lg bg-card p-6 ring-1 ${
+      style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 700 }}
+      className={`fx-depth-layer flex flex-col rounded-lg bg-card p-6 shadow-soft ring-1 transition-shadow duration-200 hover:shadow-lift ${
         variant === 'charity' ? 'ring-pop/30' : 'ring-ink/10'
       }`}
     >
