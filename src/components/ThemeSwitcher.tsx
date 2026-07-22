@@ -10,6 +10,7 @@ const THEMES = [
   { id: 'sand', label: 'Sand', a: '#c15f34', b: '#e0a24e' },
   { id: 'noir', label: 'Noir', a: '#e5484d', b: '#f2c14e' },
   { id: 'rose', label: 'Rose', a: '#b23a5b', b: '#e08aa0' },
+  { id: 'classic', label: 'Classic', a: '#8b5cf6', b: '#ec4899' },
 ] as const;
 
 /** Floating theme switcher: flips [data-theme] on <html> instantly (no reload)

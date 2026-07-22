@@ -33,6 +33,7 @@ import { charity } from '../data/charity';
           as="h1"
           text={hero.headline}
           emphasize={hero.emphasize}
+          outline={['small']}
           className="text-5xl leading-[1.04] text-white md:text-6xl lg:text-7xl"
         />
         <p class="mt-6 max-w-md text-lg text-white/60">{hero.sub}</p>
@@ -78,13 +79,13 @@ import { charity } from '../data/charity';
   </section>
 
   <section id="services" class="mx-auto max-w-6xl px-6 py-24">
-    <AnimatedHeadline client:visible as="h2" text="What I do." className="mb-10 text-3xl md:text-4xl" />
+    <AnimatedHeadline client:visible as="h2" text="What I do." outline={['do']} className="mb-10 text-3xl md:text-4xl" />
     <Services client:visible items={services} />
   </section>
 
-  <section id="contact" class="mx-auto max-w-2xl px-6 py-24 text-center">
-    <AnimatedHeadline client:visible as="h2" text="Let's build something." emphasize={['something.']} className="mb-4 text-3xl md:text-4xl" />
-    <p class="mb-8 text-ink2">Have a business that needs a real website — or think one of the free ones above is yours? Reach out.</p>
+  <section id="contact" class="relative mx-auto max-w-2xl px-6 py-24 text-center">
+    <AnimatedHeadline client:visible as="h2" text="Let's build something." emphasize={['something.']} outline={['build']} className="mb-4 text-3xl md:text-4xl" />
+    <p class="mb-8 text-ink">Have a business that needs a real website — or think one of the free ones above is yours? Reach out.</p>
     <a href="mailto:hello@prem-ium.inc" class="inline-flex items-center justify-center rounded-btn bg-accent px-6 py-3 font-medium text-white shadow-soft transition-transform hover:-translate-y-0.5">
       hello@prem-ium.inc
     </a>

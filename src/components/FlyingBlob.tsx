@@ -12,8 +12,8 @@ const WAYPOINTS = [
   { id: 'about', x: -2.6, y: 0.4, z: -0.3 },
   { id: 'work', x: 0.0, y: 0.0, z: 0.6 }, // waterfall → middle
   { id: 'charity', x: 2.4, y: 0.3, z: -0.2 },
-  { id: 'services', x: -2.3, y: 0.2, z: 0.3 },
-  { id: 'contact', x: 0.0, y: -0.2, z: 0.0 },
+  { id: 'services', x: -2.4, y: 0.2, z: 0.3 },
+  { id: 'contact', x: 3.0, y: -0.2, z: -0.4 }, // far right — clear of the centred contact text
 ];
 
 /** Turns a "r g b" custom-prop triple into a #hex THREE.Color can parse. Must
