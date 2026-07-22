@@ -20,25 +20,58 @@ import { allSites, LIVE_BASE } from '../data/allSites';
     <div class="mx-auto max-w-6xl">
       <a href="/" class="mb-6 inline-block text-sm text-white/50 hover:text-accent">← Back home</a>
       <AnimatedHeadline client:load as="h1" text="Every site we've ever built." emphasize={['built.']} className="mb-3 text-4xl leading-tight text-white md:text-5xl" />
-      <p class="mb-12 max-w-xl text-white/60">{allSites.length} real websites for real local businesses — every one is live. Click any to open it.</p>
+      <p class="mb-8 max-w-xl text-white/60">{allSites.length} websites built for local businesses — every one is live. Click any to open it.</p>
 
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <input
+        id="site-search"
+        type="search"
+        placeholder="Search by name, category, or city…"
+        class="mb-8 w-full max-w-md rounded-btn border border-white/15 bg-white/[0.04] px-5 py-3 text-white placeholder:text-white/40 focus:border-accent/60 focus:outline-none"
+      />
+      <p id="site-count" class="mb-6 text-sm text-white/40">{allSites.length} sites</p>
+
+      <div id="site-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {allSites.map((s) => (
           <a
             href={`${LIVE_BASE}/${s.slug}`}
             target="_blank"
             rel="noopener"
-            class="group flex flex-col rounded-lg border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-accent/50 hover:bg-white/[0.06]"
+            class="site-card group flex flex-col rounded-lg border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-accent/50 hover:bg-white/[0.06]"
+            data-search={`${s.business} ${s.category} ${s.city}`.toLowerCase()}
           >
             <span class="eyebrow mb-3 inline-block w-fit rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px]">{s.category}</span>
             <span class="text-lg font-semibold text-white">{s.business}</span>
-            <span class="mb-4 text-sm text-white/50">{s.city}</span>
+            <span class="mb-4 text-sm text-white/50">{s.city || ' '}</span>
             <span class="mt-auto text-sm font-medium text-accent">View live site ↗</span>
           </a>
         ))}
       </div>
+      <p id="site-empty" class="hidden py-16 text-center text-white/40">No sites match “<span id="site-q"></span>”.</p>
     </div>
   </section>
+
+  <script is:inline>
+    (function () {
+      const input = document.getElementById('site-search');
+      const cards = Array.from(document.querySelectorAll('.site-card'));
+      const count = document.getElementById('site-count');
+      const empty = document.getElementById('site-empty');
+      const qEl = document.getElementById('site-q');
+      const total = cards.length;
+      input.addEventListener('input', function () {
+        const q = input.value.trim().toLowerCase();
+        let shown = 0;
+        for (const c of cards) {
+          const match = !q || c.dataset.search.includes(q);
+          c.style.display = match ? '' : 'none';
+          if (match) shown++;
+        }
+        count.textContent = q ? shown + ' of ' + total + ' sites' : total + ' sites';
+        empty.classList.toggle('hidden', shown > 0);
+        if (qEl) qEl.textContent = input.value;
+      });
+    })();
+  </script>
 
   <footer class="relative border-t border-white/10 px-6 py-10 text-center text-sm text-white/50" style="background:rgb(5 6 8 / 0.9)">
     <div class="mb-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
