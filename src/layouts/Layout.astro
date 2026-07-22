@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import AmbientBlobs from '../components/AmbientBlobs.tsx';
+import FlyingBlob from '../components/FlyingBlob.tsx';
 interface Props { title: string; description?: string; }
 const { title, description = '' } = Astro.props;
 ---
@@ -35,6 +36,7 @@ const { title, description = '' } = Astro.props;
   </head>
   <body>
     <AmbientBlobs client:load />
+    <FlyingBlob client:only="react" />
     <slot />
   </body>
 </html>

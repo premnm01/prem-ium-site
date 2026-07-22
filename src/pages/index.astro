@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import HeroCanvas from '../components/HeroCanvas.tsx';
 import About from '../components/About.tsx';
 import ParallaxGallery from '../components/ParallaxGallery.tsx';
 import SiteCard from '../components/SiteCard.tsx';
@@ -25,9 +24,9 @@ import { charity } from '../data/charity';
     <a href="#contact" class="rounded-btn bg-accent px-4 py-2 text-sm font-medium text-white shadow-soft">Let's talk</a>
   </nav>
 
-  <section id="top" class="relative overflow-hidden" style="background:rgba(5,6,8,0.55)">
+  <section id="top" class="relative overflow-hidden">
     <div class="mx-auto grid min-h-[90vh] max-w-7xl items-center gap-6 px-6 py-16 md:grid-cols-2 md:gap-8">
-      <div class="relative z-10 order-2 text-left md:order-1">
+      <div class="relative z-10 text-left">
         <p class="eyebrow mb-4">{hero.eyebrow}</p>
         <AnimatedHeadline
           client:load
@@ -42,9 +41,7 @@ import { charity } from '../data/charity';
           <a href={hero.ctaHref2} class="rounded-btn border border-white/20 px-6 py-3 font-medium text-white transition-colors hover:bg-white/5">{hero.ctaLabel2}</a>
         </div>
       </div>
-      <div class="relative order-1 md:order-2">
-        <HeroCanvas client:only="react" />
-      </div>
+      {/* right column intentionally empty — the fixed flying blob occupies it at the top of the page */}
     </div>
     <div class="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-xs uppercase tracking-[3px] text-white/40">Scroll ↓</div>
   </section>
@@ -57,13 +54,13 @@ import { charity } from '../data/charity';
     paragraphs={about.paragraphs}
   />
 
-  <section id="work" class="relative overflow-hidden px-6 py-20" style="background:rgba(5,6,8,0.5)">
+  <section id="work" class="relative overflow-hidden px-6 py-20" style="background:rgba(5,6,8,0.35)">
     <div class="mx-auto max-w-6xl">
       <ParallaxGallery client:visible shots={gallery} />
     </div>
   </section>
 
-  <section id="charity" class="relative overflow-hidden px-6 py-24" style="background:rgba(5,6,8,0.5)">
+  <section id="charity" class="relative overflow-hidden px-6 py-24" style="background:rgba(5,6,8,0.35)">
     <div class="mx-auto max-w-6xl">
       <p class="eyebrow mb-4">Built free · Given away</p>
       <AnimatedHeadline client:visible as="h2" text="Every site we build, we give away free." emphasize={['free.']} className="mb-4 text-3xl leading-tight text-white md:text-4xl" />
