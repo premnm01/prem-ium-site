@@ -40,10 +40,12 @@ export default function Splash() {
     // Only on the home page (so the /portfolio directory isn't gated behind a
     // 3s intro), and skipped under reduced-motion. NOT session-gated, so it
     // replays on every home load / reload.
+    const preSplash = () => document.getElementById('pre-splash')?.remove();
     if (
       window.location.pathname !== '/' ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
+      preSplash();
       setGone(true);
       return;
     }
@@ -112,7 +114,7 @@ export default function Splash() {
         });
         gsap.to(splash, {
           opacity: 0, duration: 0.4, delay: 1.3,
-          onComplete: () => { setGone(true); },
+          onComplete: () => { preSplash(); setGone(true); },
         });
       }, '+=1.1');
 

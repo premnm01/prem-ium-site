@@ -4,7 +4,6 @@ import About from '../components/About.tsx';
 import ParallaxGallery from '../components/ParallaxGallery.tsx';
 import SiteCard from '../components/SiteCard.tsx';
 import Services from '../components/Services.tsx';
-import ThemeSwitcher from '../components/ThemeSwitcher.tsx';
 import SmoothScroll from '../components/SmoothScroll.tsx';
 import AnimatedHeadline from '../components/AnimatedHeadline.tsx';
 import { hero, about, services, disclaimer } from '../data/site';
@@ -12,6 +11,10 @@ import { gallery } from '../data/gallery';
 import { charity } from '../data/charity';
 ---
 <Layout title="prem-ium.online — Websites for local businesses" description={hero.sub}>
+  {/* Static cover shown from the very first paint (before any JS) so the page
+      is never briefly visible before the splash — the React Splash sits on
+      top and removes this when it finishes. */}
+  <div id="pre-splash" style="position:fixed;inset:0;z-index:9998;background:var(--bg)"></div>
   <nav class="sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-[#050608]/80 px-6 py-4 text-white backdrop-blur">
     <a href="#top" class="display text-lg font-semibold">prem-ium<span class="text-accent">.online</span></a>
     <ul class="hidden gap-6 text-sm text-white/80 md:flex">
@@ -114,6 +117,5 @@ import { charity } from '../data/charity';
     <p class="opacity-70">{disclaimer}</p>
   </footer>
 
-  <ThemeSwitcher client:load />
   <SmoothScroll client:load />
 </Layout>

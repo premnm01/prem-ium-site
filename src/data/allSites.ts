@@ -8,8 +8,8 @@ export interface AllSite {
 /** Every site built to date (270), pulled from the portal's public /api/sites.
  *  Links resolve through the /live/<slug> route (served from GitHub, so they
  *  work even when a disposable preview host has been evicted). To refresh:
- *  curl https://prem-ium-inc-client-portal.onrender.com/api/sites and regen. */
-export const LIVE_BASE = 'https://prem-ium-inc-client-portal.onrender.com/live';
+ *  curl https://portal.prem-ium.online/api/sites and regen. */
+export const LIVE_BASE = 'https://portal.prem-ium.online/live';
 
 export const allSites: AllSite[] = [
   {
