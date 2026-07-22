@@ -64,8 +64,7 @@ function FlyingGroup({ accent, pop }: { accent: string; pop: string }) {
 
   const base = useRef(new THREE.Vector3(2.6, 0, 0.2)); // smoothed glide position
   const target = useRef(new THREE.Vector3(2.6, 0, 0.2));
-  const repel = useRef(new THREE.Vector2(0, 0));
-  const pull = useRef(0);
+  const prevX = useRef(2.6); // last x, to roll the blob by how far it travelled
   const MAX_SPEED = 3.4; // scene-units / second — the constant glide cap
 
   useFrame((state, delta) => {
@@ -103,32 +102,17 @@ function FlyingGroup({ accent, pop }: { accent: string; pop: string }) {
     const step = MAX_SPEED * d;
     if (dist > 1e-4) base.current.add(toTarget.multiplyScalar(Math.min(step, dist) / dist));
 
-    // 3) pullback: recoil away from the cursor when it's over the blob
-    if (group.current) {
-      const screen = base.current.clone().project(state.camera); // NDC
-      const dx = state.pointer.x - screen.x;
-      const dy = state.pointer.y - screen.y;
-      const pd = Math.hypot(dx, dy);
-      const R = 0.55;
-      let rx = 0, ry = 0, p = 0;
-      if (pd < R && pd > 1e-4) {
-        p = (R - pd) / R;
-        rx = (-dx / pd) * p * 0.9; // push opposite the cursor
-        ry = (-dy / pd) * p * 0.9;
-      }
-      repel.current.x = THREE.MathUtils.lerp(repel.current.x, rx, 0.15);
-      repel.current.y = THREE.MathUtils.lerp(repel.current.y, ry, 0.15);
-      pull.current = THREE.MathUtils.lerp(pull.current, p, 0.15);
-      group.current.position.set(base.current.x + repel.current.x, base.current.y + repel.current.y, base.current.z);
-    }
+    // 3) position — straight to the glided base (no cursor recoil)
+    if (group.current) group.current.position.copy(base.current);
 
+    // 4) tumble as it weaves: steady multi-axis spin, plus extra roll
+    //    proportional to how far it just travelled horizontally
     if (mesh.current) {
-      const pt = state.pointer;
-      mesh.current.rotation.y = THREE.MathUtils.lerp(mesh.current.rotation.y, pt.x * 0.7, 0.06);
-      mesh.current.rotation.x = THREE.MathUtils.lerp(mesh.current.rotation.x, -pt.y * 0.7, 0.06);
-      mesh.current.rotation.z += d * 0.06;
-      const scl = 1 - pull.current * 0.2; // shrink on pullback
-      mesh.current.scale.setScalar(THREE.MathUtils.lerp(mesh.current.scale.x, scl, 0.2));
+      const rolled = base.current.x - prevX.current;
+      prevX.current = base.current.x;
+      mesh.current.rotation.y += d * 0.45 + rolled * 1.4;
+      mesh.current.rotation.x += d * 0.18;
+      mesh.current.rotation.z += d * 0.1;
     }
   });
 
