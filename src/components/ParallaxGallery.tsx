@@ -92,22 +92,17 @@ function Column({
   );
 }
 
-/** The pinned centre text of the waterfall. Sticky at ~34vh from the top so
- *  it holds its place for (column height − text height) of scroll — i.e. it
- *  stays put through nearly the whole section while the side windows flow
- *  past, then releases near the end. (A full-height sticky block would pin
- *  for only a short range and slide away too soon.) `self-start` keeps the
+/** The pinned centre text of the waterfall. Sticky and vertically centred in
+ *  the viewport (top-1/2 + -translate-y-1/2) so it sits in the middle of the
+ *  section's height while the side windows flow past. `self-start` keeps the
  *  grid cell from stretching the sticky block to the row height. */
 function CentreText() {
   return (
-    <div className="sticky top-[34vh] self-start px-2 text-center">
+    <div className="sticky top-1/2 -translate-y-1/2 self-start px-2 text-center">
       <p className="eyebrow mb-4">Selected work</p>
-      <h2 className="mb-5 text-3xl leading-tight text-white md:text-4xl lg:text-5xl">
+      <h2 className="text-3xl leading-tight text-white md:text-4xl lg:text-5xl">
         Some of the websites <span className="fx-textgrad">I've built</span> for local businesses.
       </h2>
-      <p className="mx-auto max-w-xs text-white/50">
-        Every one is live. Scroll — the windows on either side open the real site.
-      </p>
     </div>
   );
 }
@@ -132,11 +127,11 @@ export default function ParallaxGallery({ shots }: { shots: GalleryShot[] }) {
   return (
     <div ref={ref} className="relative">
       {/* Desktop: side windows | pinned centre text | side windows. */}
-      <div className="hidden grid-cols-[1fr_minmax(240px,0.9fr)_1fr] gap-6 md:grid">
-        <Column shots={left} speed={70} progress={scrollYProgress} reduceMotion={reduceMotion} />
+      <div className="hidden grid-cols-[1fr_minmax(240px,0.9fr)_1fr] items-start gap-6 md:grid">
+        <Column shots={left} speed={50} progress={scrollYProgress} reduceMotion={reduceMotion} />
         <CentreText />
-        <div className="mt-24">
-          <Column shots={right} speed={150} progress={scrollYProgress} reduceMotion={reduceMotion} />
+        <div className="mt-12">
+          <Column shots={right} speed={90} progress={scrollYProgress} reduceMotion={reduceMotion} />
         </div>
       </div>
 
