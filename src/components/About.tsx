@@ -23,7 +23,7 @@ export default function About({
   // Portrait card moves at a different rate than the text column — 2-layer parallax.
   const cardY = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [-100, 100]);
   const cardRotate = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [-6, 6]);
-  const tilt = useTilt(16);
+  const tilt = useTilt(24);
 
   return (
     <section id="about" ref={sectionRef} className="mx-auto max-w-6xl px-6 py-24">
@@ -50,13 +50,14 @@ export default function About({
             ref={tilt.ref as any}
             onPointerMove={tilt.onPointerMove}
             onPointerLeave={tilt.onPointerLeave}
-            whileHover={reduceMotion ? undefined : { scale: 1.03 }}
+            whileHover={reduceMotion ? undefined : { scale: 1.04 }}
             style={{
               rotateX: tilt.rotateX,
               rotateY: tilt.rotateY,
-              transformPerspective: 800,
+              transformPerspective: 700,
+              boxShadow: tilt.shadow,
             }}
-            className="fx-depth-layer flex aspect-square items-center justify-center rounded-lg bg-card p-10 shadow-lift ring-1 ring-ink/10"
+            className="fx-depth-layer flex aspect-square items-center justify-center rounded-lg bg-card p-10 ring-1 ring-ink/10"
           >
             <div
               className="display flex h-full w-full items-center justify-center rounded text-6xl font-semibold"

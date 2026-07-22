@@ -12,20 +12,18 @@ import AnimatedHeadline from './AnimatedHeadline';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-/** One depth plane: a blurred colored shape sitting at a fixed CSS z-depth
- *  (via the `z` motion prop — NOT a literal `transform` string, which
- *  Framer Motion silently overwrites whenever y/scale/rotate motion values
- *  are also present on the same element). Scroll and pointer position both
- *  drive its offset, each scaled by `factor` so the three planes visibly
- *  separate from one another — that separation IS the parallax. */
-function DepthPlane({
+/** One depth plane: a soft radial-gradient glow (NOT a solid shape behind a
+ *  CSS `filter: blur()`) — a blurred, scroll/pointer-animated element forces
+ *  the browser to re-rasterize the blur every frame, which is what made the
+ *  original version laggy. A radial gradient achieves the same soft-glow
+ *  look as a pure background composite: cheap, GPU-friendly, no filter. */
+function GlowPlane({
   scrollYProgress,
   pointerX,
   pointerY,
   factor,
   z,
   size,
-  blur,
   color,
   className = '',
   reduceMotion,
@@ -36,15 +34,13 @@ function DepthPlane({
   factor: number;
   z: number;
   size: number;
-  blur: number;
   color: string;
   className?: string;
   reduceMotion: boolean | null;
 }) {
   const scrollY = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [0, 260 * factor]);
-  const scrollRotate = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [0, 18 * factor]);
-  const px = useTransform(pointerX, (v) => (reduceMotion ? 0 : v * 40 * factor));
-  const py = useTransform(pointerY, (v) => (reduceMotion ? 0 : v * 40 * factor));
+  const px = useTransform(pointerX, (v) => (reduceMotion ? 0 : v * 50 * factor));
+  const py = useTransform(pointerY, (v) => (reduceMotion ? 0 : v * 50 * factor));
 
   return (
     <motion.div
@@ -53,13 +49,51 @@ function DepthPlane({
       style={{
         width: size,
         height: size,
-        background: color,
-        filter: `blur(${blur}px)`,
+        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
         z,
         y: scrollY,
         x: px,
-        rotate: scrollRotate,
         translateY: py,
+      }}
+    />
+  );
+}
+
+/** A sharp-edged floating chip — gives the eye a hard reference edge so the
+ *  soft glows behind it actually read as "behind," not just as background
+ *  texture. Tilts opposite the foreground text on pointer move, and floats
+ *  independently on scroll — the clearest single "this is 3D" cue on the
+ *  page. */
+function FloatingChip({
+  scrollYProgress,
+  pointerX,
+  pointerY,
+  reduceMotion,
+}: {
+  scrollYProgress: ReturnType<typeof useScroll>['scrollYProgress'];
+  pointerX: ReturnType<typeof useMotionValue<number>>;
+  pointerY: ReturnType<typeof useMotionValue<number>>;
+  reduceMotion: boolean | null;
+}) {
+  const y = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [-40, 220]);
+  const rotate = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [-8, 10]);
+  const rotateY = useTransform(pointerX, (v) => (reduceMotion ? 0 : v * -30));
+  const rotateX = useTransform(pointerY, (v) => (reduceMotion ? 0 : v * 20));
+
+  return (
+    <motion.div
+      aria-hidden
+      className="fx-depth-layer pointer-events-none absolute right-[12%] top-[20%] hidden h-24 w-24 rounded-2xl border md:block lg:h-32 lg:w-32"
+      style={{
+        z: 80,
+        y,
+        rotate,
+        rotateX,
+        rotateY,
+        transformPerspective: 600,
+        borderColor: 'rgb(var(--pop-rgb) / 0.4)',
+        background: 'linear-gradient(135deg, rgb(var(--accent-rgb) / 0.35), rgb(var(--pop-rgb) / 0.35))',
+        boxShadow: '0 30px 60px -20px rgb(var(--accent-rgb) / 0.4)',
       }}
     />
   );
@@ -93,24 +127,32 @@ export default function Hero({
 
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
-  const springX = useSpring(pointerX, { stiffness: 60, damping: 20 });
-  const springY = useSpring(pointerY, { stiffness: 60, damping: 20 });
+  const springX = useSpring(pointerX, { stiffness: 80, damping: 22 });
+  const springY = useSpring(pointerY, { stiffness: 80, damping: 22 });
 
   useEffect(() => {
     if (reduceMotion) return;
+    let raf = 0;
     function onMove(e: PointerEvent) {
-      const nx = e.clientX / window.innerWidth - 0.5;
-      const ny = e.clientY / window.innerHeight - 0.5;
-      pointerX.set(nx);
-      pointerY.set(ny);
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        pointerX.set(e.clientX / window.innerWidth - 0.5);
+        pointerY.set(e.clientY / window.innerHeight - 0.5);
+      });
     }
-    window.addEventListener('pointermove', onMove);
-    return () => window.removeEventListener('pointermove', onMove);
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      cancelAnimationFrame(raf);
+    };
   }, [reduceMotion]);
 
-  // Foreground content lifts slightly toward the viewer while the whole
-  // section scrolls past, reinforcing the depth separation from the planes.
+  // Foreground content tilts opposite the pointer and lifts slightly on
+  // scroll — real perspective foreshortening on the text itself, which
+  // reads as "3D" far more clearly than a moving background ever does.
   const contentY = useTransform(scrollYProgress, [0, 1], reduceMotion ? [0, 0] : [0, -60]);
+  const contentRotateY = useTransform(pointerX, (v) => (reduceMotion ? 0 : v * 10));
+  const contentRotateX = useTransform(pointerY, (v) => (reduceMotion ? 0 : v * -8));
 
   return (
     <section
@@ -118,45 +160,45 @@ export default function Hero({
       className="fx-perspective relative flex min-h-[92vh] items-center overflow-hidden px-6 py-24 text-center"
     >
       <div aria-hidden className="fx-depth-layer absolute inset-0">
-        <DepthPlane
+        <GlowPlane
           scrollYProgress={scrollYProgress}
           pointerX={springX}
           pointerY={springY}
           factor={1}
           z={-320}
-          size={520}
-          blur={90}
-          color="color-mix(in srgb, var(--accent) 55%, transparent)"
-          className="left-[8%] top-[6%] opacity-60"
+          size={640}
+          color="rgb(var(--accent-rgb) / 0.55)"
+          className="left-[2%] top-0 opacity-70"
           reduceMotion={reduceMotion}
         />
-        <DepthPlane
+        <GlowPlane
           scrollYProgress={scrollYProgress}
           pointerX={springX}
           pointerY={springY}
           factor={-0.6}
           z={-160}
-          size={380}
-          blur={70}
-          color="color-mix(in srgb, var(--pop) 60%, transparent)"
-          className="right-[10%] top-[18%] opacity-50"
+          size={460}
+          color="rgb(var(--pop-rgb) / 0.6)"
+          className="right-[4%] top-[10%] opacity-60"
           reduceMotion={reduceMotion}
         />
-        <DepthPlane
+        <FloatingChip
           scrollYProgress={scrollYProgress}
           pointerX={springX}
           pointerY={springY}
-          factor={1.4}
-          z={-60}
-          size={220}
-          blur={40}
-          color="color-mix(in srgb, var(--accent-d) 70%, transparent)"
-          className="left-[38%] bottom-[8%] opacity-40"
           reduceMotion={reduceMotion}
         />
       </div>
 
-      <motion.div className="fx-depth-layer relative mx-auto w-full max-w-4xl" style={{ y: contentY }}>
+      <motion.div
+        className="fx-depth-layer relative mx-auto w-full max-w-4xl"
+        style={{
+          y: contentY,
+          rotateX: contentRotateX,
+          rotateY: contentRotateY,
+          transformPerspective: 1200,
+        }}
+      >
         {eyebrow && (
           <motion.p
             className="eyebrow mb-4"
