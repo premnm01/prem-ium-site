@@ -4,10 +4,17 @@ import { Float, Environment, Lightformer, MeshDistortMaterial } from '@react-thr
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 
-// Whole-page scroll progress (0 at top → 1 at the very bottom), written by a
-// passive scroll listener and read inside useFrame so the blob's flight path
-// updates without React re-renders.
-const scroll = { current: 0 };
+// Per-section flight waypoints (scene units). The blob eases toward the
+// waypoint of whichever section is centred in the viewport. Work (the
+// waterfall) is dead centre by request; the others send it side to side.
+const WAYPOINTS = [
+  { id: 'top', x: 2.6, y: 0.0, z: 0.2 },
+  { id: 'about', x: -2.6, y: 0.4, z: -0.3 },
+  { id: 'work', x: 0.0, y: 0.0, z: 0.6 }, // waterfall → middle
+  { id: 'charity', x: 2.4, y: 0.3, z: -0.2 },
+  { id: 'services', x: -2.3, y: 0.2, z: 0.3 },
+  { id: 'contact', x: 0.0, y: -0.2, z: 0.0 },
+];
 
 /** Turns a "r g b" custom-prop triple into a #hex THREE.Color can parse. Must
  *  read --accent-rgb (raw triple), NOT --accent (an unresolved rgb(var(...))
@@ -37,28 +44,91 @@ function useThemeColors() {
   return c;
 }
 
-/** The blob + its orbiting shards, wrapped in a group whose position weaves
- *  across the viewport as you scroll — the "flying around" parallax path.
- *  Starts on the right (matching the hero), then weaves left/right and bobs
- *  up/down and in/out of depth down the length of the page. */
+/** The blob + its orbiting shards. It glides between per-section waypoints:
+ *
+ *  - CONSTANT SPEED: the visible position moves toward its target at a capped
+ *    units/sec, so fast scrolling never whips it across the screen — it just
+ *    keeps gliding (and lags behind, catching up smoothly). Decoupled from
+ *    scroll velocity entirely.
+ *  - PULLBACK: when the cursor is over the blob it recoils away from the
+ *    pointer and shrinks slightly, like poking something soft. */
 function FlyingGroup({ accent, pop }: { accent: string; pop: string }) {
   const group = useRef<THREE.Group>(null);
   const mesh = useRef<THREE.Mesh>(null);
-  const TAU = Math.PI * 2;
+
+  // Cached section elements for the waypoints (looked up once after mount).
+  const els = useRef<{ el: HTMLElement; wp: (typeof WAYPOINTS)[number] }[]>([]);
+  useEffect(() => {
+    els.current = WAYPOINTS.map((wp) => ({ el: document.getElementById(wp.id)!, wp })).filter((e) => e.el);
+  }, []);
+
+  const base = useRef(new THREE.Vector3(2.6, 0, 0.2)); // smoothed glide position
+  const target = useRef(new THREE.Vector3(2.6, 0, 0.2));
+  const repel = useRef(new THREE.Vector2(0, 0));
+  const pull = useRef(0);
+  const MAX_SPEED = 3.4; // scene-units / second — the constant glide cap
 
   useFrame((state, delta) => {
-    const p = scroll.current;
-    if (group.current) {
-      // Lissajous-ish flight path. cos(0)=1 → starts on the right like the hero.
-      group.current.position.x = Math.cos(p * TAU * 2.1) * 2.6;
-      group.current.position.y = Math.sin(p * TAU * 1.6) * 1.7;
-      group.current.position.z = Math.sin(p * TAU * 1.15) * 0.9;
+    const d = Math.min(delta, 0.05); // clamp for tab-refocus spikes
+    const items = els.current;
+
+    // 1) target = waypoint of whichever section is centred in the viewport
+    if (items.length) {
+      const vc = window.scrollY + window.innerHeight / 2;
+      const centers = items.map(({ el, wp }) => {
+        const r = el.getBoundingClientRect();
+        return { c: r.top + window.scrollY + r.height / 2, wp };
+      });
+      let tx = centers[0].wp.x, ty = centers[0].wp.y, tz = centers[0].wp.z;
+      if (vc >= centers[centers.length - 1].c) {
+        const last = centers[centers.length - 1].wp; tx = last.x; ty = last.y; tz = last.z;
+      } else {
+        for (let i = 0; i < centers.length - 1; i++) {
+          if (vc >= centers[i].c && vc < centers[i + 1].c) {
+            const t = (vc - centers[i].c) / (centers[i + 1].c - centers[i].c);
+            const a = centers[i].wp, b = centers[i + 1].wp;
+            tx = THREE.MathUtils.lerp(a.x, b.x, t);
+            ty = THREE.MathUtils.lerp(a.y, b.y, t);
+            tz = THREE.MathUtils.lerp(a.z, b.z, t);
+            break;
+          }
+        }
+      }
+      target.current.set(tx, ty, tz);
     }
+
+    // 2) glide `base` toward target at a constant capped speed (the "lag")
+    const toTarget = target.current.clone().sub(base.current);
+    const dist = toTarget.length();
+    const step = MAX_SPEED * d;
+    if (dist > 1e-4) base.current.add(toTarget.multiplyScalar(Math.min(step, dist) / dist));
+
+    // 3) pullback: recoil away from the cursor when it's over the blob
+    if (group.current) {
+      const screen = base.current.clone().project(state.camera); // NDC
+      const dx = state.pointer.x - screen.x;
+      const dy = state.pointer.y - screen.y;
+      const pd = Math.hypot(dx, dy);
+      const R = 0.55;
+      let rx = 0, ry = 0, p = 0;
+      if (pd < R && pd > 1e-4) {
+        p = (R - pd) / R;
+        rx = (-dx / pd) * p * 0.9; // push opposite the cursor
+        ry = (-dy / pd) * p * 0.9;
+      }
+      repel.current.x = THREE.MathUtils.lerp(repel.current.x, rx, 0.15);
+      repel.current.y = THREE.MathUtils.lerp(repel.current.y, ry, 0.15);
+      pull.current = THREE.MathUtils.lerp(pull.current, p, 0.15);
+      group.current.position.set(base.current.x + repel.current.x, base.current.y + repel.current.y, base.current.z);
+    }
+
     if (mesh.current) {
       const pt = state.pointer;
       mesh.current.rotation.y = THREE.MathUtils.lerp(mesh.current.rotation.y, pt.x * 0.7, 0.06);
       mesh.current.rotation.x = THREE.MathUtils.lerp(mesh.current.rotation.x, -pt.y * 0.7, 0.06);
-      mesh.current.rotation.z += delta * 0.06;
+      mesh.current.rotation.z += d * 0.06;
+      const scl = 1 - pull.current * 0.2; // shrink on pullback
+      mesh.current.scale.setScalar(THREE.MathUtils.lerp(mesh.current.scale.x, scl, 0.2));
     }
   });
 
@@ -112,18 +182,9 @@ export default function FlyingBlob() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      scroll.current = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-    };
     const onVis = () => setVisible(!document.hidden);
-    window.addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('visibilitychange', onVis);
-    onScroll();
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      document.removeEventListener('visibilitychange', onVis);
-    };
+    return () => document.removeEventListener('visibilitychange', onVis);
   }, []);
 
   return (
@@ -140,9 +201,7 @@ export default function FlyingBlob() {
         <pointLight position={[5, 5, 5]} intensity={32} color={pop} />
         <pointLight position={[-5, -3, 2]} intensity={22} color={accent} />
         <Suspense fallback={null}>
-          <Float speed={1.5} rotationIntensity={0.5} floatIntensity={1.3}>
-            <FlyingGroup accent={accent} pop={pop} />
-          </Float>
+          <FlyingGroup accent={accent} pop={pop} />
           <Environment resolution={256}>
             <Lightformer intensity={2.4} position={[0, 3, 3]} scale={6} color={pop} />
             <Lightformer intensity={2.0} position={[-3, -1, 2]} scale={5} color={accent} />
