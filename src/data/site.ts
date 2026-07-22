@@ -21,10 +21,14 @@ export const about = {
 };
 
 export const services = [
-  { title: 'Custom design', body: 'No templates pretending to be templates — a real design pass for every business.' },
-  { title: 'Fast, static builds', body: 'Sites that load instantly and rank well, deployed straight from GitHub.' },
-  { title: 'Self-serve client portal', body: 'Owners can edit text, images, and sections themselves — no ticket required.' },
-  { title: 'Analytics + alerts', body: 'A dashboard for traffic and leads, with Discord alerts when something needs attention.' },
+  { title: 'Local business websites', body: 'Fast, mobile-first sites for plumbers, salons, auto shops — custom-designed, not templated. Your site actually looks like yours.' },
+  { title: 'Custom web applications', body: 'Client portals, dashboards, booking systems, and internal tools — built clean on Node/Express with GitHub + JWT auth, deployed reliably.' },
+  { title: 'Analytics & SEO', body: 'Google Analytics 4 on every site, location-keyworded SEO, and real visitor data surfaced in a dashboard built for non-technical owners.' },
+  { title: 'Conversion tracking & ad pixels', body: 'Meta Pixel + Conversions API and GA4 events wired in, so your ad spend and leads are actually measurable — set up per site.' },
+  { title: 'Automations & alerts', body: 'Auto-deploys straight from GitHub, Discord alerts on new leads or issues, and scripted outreach — the busywork runs itself.' },
+  { title: 'E-commerce & booking', body: 'Simple online stores and booking flows with Stripe checkout — lightweight and custom, no Shopify subscription required.' },
+  { title: 'Self-serve client portal', body: 'Every site ships with a portal so owners edit text and swap images themselves — GitHub-backed, auto-deployed, no developer needed.' },
+  { title: 'Ongoing support', body: 'Updates, new sections, and performance fixes on request, with full version history so you can always roll back.' },
 ];
 
 export const disclaimer = 'prem-ium.inc is a personal portfolio and small independent practice, not a registered business.';

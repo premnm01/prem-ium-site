@@ -1,20 +1,8 @@
-import { useRef, useState, useEffect, Suspense } from 'react';
+import { useRef, useState, useEffect, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Environment, Lightformer, MeshDistortMaterial } from '@react-three/drei';
+import { Environment, Lightformer, MeshDistortMaterial } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
-
-// Per-section flight waypoints (scene units). The blob eases toward the
-// waypoint of whichever section is centred in the viewport. Work (the
-// waterfall) is dead centre by request; the others send it side to side.
-const WAYPOINTS = [
-  { id: 'top', x: 2.6, y: 0.0, z: 0.2 },
-  { id: 'about', x: -2.6, y: 0.4, z: -0.3 },
-  { id: 'work', x: 0.0, y: 0.0, z: 0.6 }, // waterfall → middle
-  { id: 'charity', x: 2.4, y: 0.3, z: -0.2 },
-  { id: 'services', x: -2.4, y: 0.2, z: 0.3 },
-  { id: 'contact', x: 3.0, y: -0.2, z: -0.4 }, // far right — clear of the centred contact text
-];
 
 /** Turns a "r g b" custom-prop triple into a #hex THREE.Color can parse. Must
  *  read --accent-rgb (raw triple), NOT --accent (an unresolved rgb(var(...))
@@ -25,15 +13,14 @@ function tripleToHex(triple: string, fallback: string): string {
   return '#' + parts.map((n) => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0')).join('');
 }
 
-/** Reads the theme's accent/pop so the blob recolours live with the palette. */
 function useThemeColors() {
-  const [c, setC] = useState({ accent: '#3f6b4a', pop: '#d4a94a' });
+  const [c, setC] = useState({ accent: '#e5484d', pop: '#f2c14e' });
   useEffect(() => {
     const read = () => {
       const s = getComputedStyle(document.documentElement);
       setC({
-        accent: tripleToHex(s.getPropertyValue('--accent-rgb'), '#3f6b4a'),
-        pop: tripleToHex(s.getPropertyValue('--pop-rgb'), '#d4a94a'),
+        accent: tripleToHex(s.getPropertyValue('--accent-rgb'), '#e5484d'),
+        pop: tripleToHex(s.getPropertyValue('--pop-rgb'), '#f2c14e'),
       });
     };
     read();
@@ -44,105 +31,127 @@ function useThemeColors() {
   return c;
 }
 
-/** The blob + its orbiting shards. It glides between per-section waypoints:
- *
- *  - CONSTANT SPEED: the visible position moves toward its target at a capped
- *    units/sec, so fast scrolling never whips it across the screen — it just
- *    keeps gliding (and lags behind, catching up smoothly). Decoupled from
- *    scroll velocity entirely.
- *  - PULLBACK: when the cursor is over the blob it recoils away from the
- *    pointer and shrinks slightly, like poking something soft. */
-function FlyingGroup({ accent, pop }: { accent: string; pop: string }) {
-  const group = useRef<THREE.Group>(null);
-  const mesh = useRef<THREE.Mesh>(null);
+const N = 14;
+const ORIGIN = new THREE.Vector3(0, 0, 0);
+const rand = (a: number, b: number) => a + Math.random() * (b - a);
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const smooth = (t: number) => t * t * (3 - 2 * t);
 
-  // Cached section elements for the waypoints (looked up once after mount).
-  const els = useRef<{ el: HTMLElement; wp: (typeof WAYPOINTS)[number] }[]>([]);
+/** A field of small bubbles that drift with scroll at their own random rates
+ *  (parallax, no coordinated path), then merge into one huge blob as the
+ *  contact section comes into view. */
+function BubbleField({ accent, pop }: { accent: string; pop: string }) {
+  const bubbleRefs = useRef<(THREE.Mesh | null)[]>([]);
+  const matRefs = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
+  const mergeRef = useRef<THREE.Mesh>(null);
+  const converge = useRef(0);
+  const scrollP = useRef(0);
+  const contactEl = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
-    els.current = WAYPOINTS.map((wp) => ({ el: document.getElementById(wp.id)!, wp })).filter((e) => e.el);
+    contactEl.current = document.getElementById('contact');
   }, []);
 
-  const base = useRef(new THREE.Vector3(2.6, 0, 0.2)); // smoothed glide position
-  const target = useRef(new THREE.Vector3(2.6, 0, 0.2));
-  const prevX = useRef(2.6); // last x, to roll the blob by how far it travelled
-  const MAX_SPEED = 3.4; // scene-units / second — the constant glide cap
+  // Per-bubble random params (home position, drift, float, size, phase).
+  const bubbles = useMemo(
+    () =>
+      Array.from({ length: N }, () => ({
+        home: new THREE.Vector3(rand(-4.6, 4.6), rand(-2.6, 2.6), rand(-2.2, 1.4)),
+        drift: new THREE.Vector3(rand(-2.4, 2.4), rand(-3.2, 3.2), rand(-1.2, 1.2)),
+        floatAmp: new THREE.Vector3(rand(0.2, 0.7), rand(0.2, 0.7), rand(0.15, 0.45)),
+        speed: new THREE.Vector3(rand(0.3, 0.9), rand(0.3, 0.9), rand(0.2, 0.6)),
+        phase: new THREE.Vector3(rand(0, 6.28), rand(0, 6.28), rand(0, 6.28)),
+        size: rand(0.16, 0.42),
+        spin: rand(0.1, 0.5),
+      })),
+    [],
+  );
+
+  const _v = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((state, delta) => {
-    const d = Math.min(delta, 0.05); // clamp for tab-refocus spikes
-    const items = els.current;
+    const t = state.clock.elapsedTime;
+    const d = Math.min(delta, 0.05);
 
-    // 1) target = waypoint of whichever section is centred in the viewport
-    if (items.length) {
-      const vc = window.scrollY + window.innerHeight / 2;
-      const centers = items.map(({ el, wp }) => {
-        const r = el.getBoundingClientRect();
-        return { c: r.top + window.scrollY + r.height / 2, wp };
-      });
-      let tx = centers[0].wp.x, ty = centers[0].wp.y, tz = centers[0].wp.z;
-      if (vc >= centers[centers.length - 1].c) {
-        const last = centers[centers.length - 1].wp; tx = last.x; ty = last.y; tz = last.z;
-      } else {
-        for (let i = 0; i < centers.length - 1; i++) {
-          if (vc >= centers[i].c && vc < centers[i + 1].c) {
-            const t = (vc - centers[i].c) / (centers[i + 1].c - centers[i].c);
-            const a = centers[i].wp, b = centers[i + 1].wp;
-            tx = THREE.MathUtils.lerp(a.x, b.x, t);
-            ty = THREE.MathUtils.lerp(a.y, b.y, t);
-            tz = THREE.MathUtils.lerp(a.z, b.z, t);
-            break;
-          }
-        }
-      }
-      target.current.set(tx, ty, tz);
+    // whole-page scroll progress
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    scrollP.current = max > 0 ? clamp01(window.scrollY / max) : 0;
+
+    // converge: ramps 0→1 as the contact section fills the viewport
+    let cv = 0;
+    if (contactEl.current) {
+      const r = contactEl.current.getBoundingClientRect();
+      const topDoc = r.top + window.scrollY;
+      cv = clamp01((window.scrollY + window.innerHeight - topDoc) / (window.innerHeight * 0.85));
+    }
+    converge.current = THREE.MathUtils.lerp(converge.current, cv, 0.12);
+    const cvS = smooth(converge.current);
+    const sp = scrollP.current;
+
+    for (let i = 0; i < N; i++) {
+      const m = bubbleRefs.current[i];
+      const b = bubbles[i];
+      if (!m) continue;
+      // random parallax drift + gentle float
+      _v.set(
+        b.home.x + Math.sin(t * b.speed.x + b.phase.x) * b.floatAmp.x + sp * b.drift.x,
+        b.home.y + Math.cos(t * b.speed.y + b.phase.y) * b.floatAmp.y + sp * b.drift.y,
+        b.home.z + Math.sin(t * b.speed.z + b.phase.z) * b.floatAmp.z,
+      );
+      // pull toward centre as we converge
+      _v.lerp(ORIGIN, cvS);
+      m.position.copy(_v);
+      m.rotation.y += d * b.spin;
+      const s = b.size * (1 - cvS * 0.85);
+      m.scale.setScalar(s);
+      const mat = matRefs.current[i];
+      if (mat) mat.opacity = 1 - cvS;
     }
 
-    // 2) glide `base` toward target at a constant capped speed (the "lag")
-    const toTarget = target.current.clone().sub(base.current);
-    const dist = toTarget.length();
-    const step = MAX_SPEED * d;
-    if (dist > 1e-4) base.current.add(toTarget.multiplyScalar(Math.min(step, dist) / dist));
-
-    // 3) position — straight to the glided base (no cursor recoil)
-    if (group.current) group.current.position.copy(base.current);
-
-    // 4) tumble as it weaves: steady multi-axis spin, plus extra roll
-    //    proportional to how far it just travelled horizontally
-    if (mesh.current) {
-      const rolled = base.current.x - prevX.current;
-      prevX.current = base.current.x;
-      mesh.current.rotation.y += d * 0.45 + rolled * 1.4;
-      mesh.current.rotation.x += d * 0.18;
-      mesh.current.rotation.z += d * 0.1;
+    // the merged mega-blob grows + fades in at the end
+    if (mergeRef.current) {
+      const scale = THREE.MathUtils.lerp(0.02, 2.7, cvS);
+      mergeRef.current.scale.setScalar(scale);
+      mergeRef.current.rotation.y += d * 0.15;
+      mergeRef.current.rotation.x = state.pointer.y * 0.4;
+      const mm = mergeRef.current.material as THREE.Material & { opacity: number };
+      mm.opacity = cvS;
+      mergeRef.current.visible = cvS > 0.01;
     }
   });
 
-  const spots: [number, number, number][] = [
-    [2.0, 1.0, -0.5], [-2.1, -0.8, 0.4], [1.5, -1.3, 0.7], [-1.6, 1.4, -0.6], [0.2, 1.9, -1.1],
-  ];
-
   return (
-    <group ref={group}>
-      <mesh ref={mesh}>
+    <group>
+      {bubbles.map((b, i) => (
+        <mesh key={i} ref={(el) => (bubbleRefs.current[i] = el)} position={b.home}>
+          <icosahedronGeometry args={[1, 3]} />
+          <meshStandardMaterial
+            ref={(el) => (matRefs.current[i] = el as THREE.MeshStandardMaterial)}
+            color={i % 2 ? pop : accent}
+            emissive={i % 2 ? pop : accent}
+            emissiveIntensity={0.5}
+            metalness={0.35}
+            roughness={0.3}
+            transparent
+            opacity={1}
+          />
+        </mesh>
+      ))}
+
+      <mesh ref={mergeRef} visible={false}>
         <icosahedronGeometry args={[1.3, 20]} />
         <MeshDistortMaterial
           color={accent}
+          emissive={pop}
+          emissiveIntensity={0.45}
           distort={0.4}
           speed={2.1}
           roughness={0.22}
           metalness={0.45}
-          envMapIntensity={0.9}
-          emissive={pop}
-          emissiveIntensity={0.45}
+          transparent
+          opacity={0}
         />
       </mesh>
-      {spots.map((pos, i) => (
-        <Float key={i} speed={2 + i * 0.4} rotationIntensity={2.5} floatIntensity={2.2}>
-          <mesh position={pos} scale={0.15 + (i % 3) * 0.05}>
-            <octahedronGeometry args={[1, 0]} />
-            <meshStandardMaterial color={pop} metalness={0.4} roughness={0.25} emissive={pop} emissiveIntensity={0.6} />
-          </mesh>
-        </Float>
-      ))}
     </group>
   );
 }
@@ -158,13 +167,11 @@ function Rig() {
   return null;
 }
 
-/** Fixed, full-viewport WebGL layer that sits BEHIND the page content
- *  (pointer-events-none) so the blob flies around behind every section as you
- *  scroll. Pauses when the tab is hidden. */
+/** Fixed, full-viewport WebGL layer behind the page content
+ *  (pointer-events-none). Pauses when the tab is hidden. */
 export default function FlyingBlob() {
   const { accent, pop } = useThemeColors();
   const [visible, setVisible] = useState(true);
-
   useEffect(() => {
     const onVis = () => setVisible(!document.hidden);
     document.addEventListener('visibilitychange', onVis);
@@ -175,17 +182,17 @@ export default function FlyingBlob() {
     <div className="pointer-events-none fixed inset-0" style={{ zIndex: -5 }}>
       <Canvas
         dpr={[1, 1.6]}
-        camera={{ position: [0, 0, 4.8], fov: 45 }}
+        camera={{ position: [0, 0, 6], fov: 45 }}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         frameloop={visible ? 'always' : 'never'}
         eventSource={typeof document !== 'undefined' ? document.documentElement : undefined}
         eventPrefix="client"
       >
-        <ambientLight intensity={0.45} />
+        <ambientLight intensity={0.5} />
         <pointLight position={[5, 5, 5]} intensity={32} color={pop} />
         <pointLight position={[-5, -3, 2]} intensity={22} color={accent} />
         <Suspense fallback={null}>
-          <FlyingGroup accent={accent} pop={pop} />
+          <BubbleField accent={accent} pop={pop} />
           <Environment resolution={256}>
             <Lightformer intensity={2.4} position={[0, 3, 3]} scale={6} color={pop} />
             <Lightformer intensity={2.0} position={[-3, -1, 2]} scale={5} color={accent} />
@@ -194,7 +201,7 @@ export default function FlyingBlob() {
         </Suspense>
         <Rig />
         <EffectComposer>
-          <Bloom mipmapBlur intensity={0.4} luminanceThreshold={0.72} luminanceSmoothing={0.2} />
+          <Bloom mipmapBlur intensity={0.4} luminanceThreshold={0.7} luminanceSmoothing={0.2} />
         </EffectComposer>
       </Canvas>
     </div>
